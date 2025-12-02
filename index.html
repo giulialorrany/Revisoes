@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisão - Concurso Banco Central</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f0f4f8;
+            --text-primary: #1a1a1a;
+            --text-secondary: #546e7a;
+            --border-color: #cfd8dc;
+            --accent: #003d82;
+            --accent-light: #0055b8;
+            --accent-lighter: #4a90e2;
+            --gray-primary: #5a6c7d;
+            --gray-light: #90a4ae;
+            --gray-lighter: #eceff1;
+            --success: #2e7d32;
+            --warning: #f57c00;
+            --danger: #c62828;
+            --shadow: rgba(0, 61, 130, 0.1);
+            --card-border: #b0bec5;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f26;
+            --text-primary: #e1e8ed;
+            --text-secondary: #8899a6;
+            --border-color: #2f3640;
+            --accent: #1565c0;
+            --accent-light: #1976d2;
+            --accent-lighter: #42a5f5;
+            --gray-primary: #78909c;
+            --gray-light: #546e7a;
+            --gray-lighter: #263238;
+            --success: #388e3c;
+            --warning: #fb8c00;
+            --danger: #d32f2f;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --card-border: #37474f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-lighter) 100%);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, var(--gray-primary) 100%);
+            padding: 2rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--gray-light);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .notification-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .add-section {
+            background: var(--bg-primary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px var(--shadow);
+            border: 2px solid var(--accent);
+            border-left: 6px solid var(--accent);
+        }
+
+        .add-section h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-section h2::before {
+            content: "📚";
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .subject-card {
+            background: var(--bg-primary);
+            padding: 1.75rem;
+            box-shadow: 0 4px 16px var(--shadow);
+            border: 2px solid var(--card-border);
+            border-top: 4px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+            border-top-color: var(--accent-lighter);
+        }
+
+        .subject-card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .subject-content {
+            font-size: 0.95rem;
+            color: var(--gray-primary);
+            margin-bottom: 1.25rem;
+            font-style: italic;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--gray-light);
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--gray-lighter);
+            border-left: 5px solid var(--gray-primary);
+            transition: all 0.2s;
+        }
+
+        .review-item:hover {
+            background: var(--border-color);
+            transform: translateX(4px);
+        }
+
+        .review-item.overdue {
+            border-left-color: var(--danger);
+        }
+
+        .review-item.upcoming {
+            border-left-color: var(--warning);
+        }
+
+        .review-item.done {
+            border-left-color: var(--success);
+            opacity: 0.6;
+        }
+
+        .review-info {
+            flex: 1;
+        }
+
+        .review-days {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .review-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .review-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+        }
+
+        .review-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .review-btn:disabled {
+            background: var(--gray-light);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, var(--danger) 0%, #e53935 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(198, 40, 40, 0.2);
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 2.5rem;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 3px solid var(--danger);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes highlight {
+            0% { box-shadow: 0 0 0 0 var(--accent); }
+            50% { box-shadow: 0 0 30px 10px var(--accent); }
+            100% { box-shadow: 0 4px 16px var(--shadow); }
+        }
+
+        .modal-content h2 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .overdue-list {
+            margin: 1.5rem 0;
+        }
+
+        .overdue-item {
+            padding: 1rem;
+            background: var(--gray-lighter);
+            border-left: 5px solid var(--danger);
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .overdue-item:hover {
+            background: var(--border-color);
+            transform: translateX(4px);
+        }
+
+        .modal-close {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.2);
+        }
+
+        .modal-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Revisão - Concurso Banco Central</h1>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="notification-btn" onclick="toggleNotifications()">
+                🔔
+                <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="add-section">
+            <h2>Adicionar Nova Matéria</h2>
+            <div class="form-group">
+                <label for="subjectName">Nome da Matéria:</label>
+                <input type="text" id="subjectName" placeholder="Ex: Direito Administrativo">
+            </div>
+            <div class="form-group">
+                <label for="subjectContent">Conteúdo da Matéria:</label>
+                <input type="text" id="subjectContent" placeholder="Ex: Princípios da Administração Pública">
+            </div>
+            <button class="btn" onclick="addSubject()">Adicionar Matéria</button>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid"></div>
+    </div>
+
+    <div class="modal" id="overdueModal">
+        <div class="modal-content">
+            <h2>⚠️ Revisões Atrasadas!</h2>
+            <p>Você tem revisões pendentes:</p>
+            <div class="overdue-list" id="overdueList"></div>
+            <button class="modal-close" onclick="closeModal()">Entendi</button>
+        </div>
+    </div>
+
+    <script>
+        const REVIEW_INTERVALS = [7, 30, 60, 90];
+        let subjects = {};
+
+        function init() {
+            loadData();
+            renderSubjects();
+            updateNotificationBadge();
+            checkOverdueReviews();
+            loadTheme();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('concursoReviews');
+            if (saved) subjects = JSON.parse(saved);
+        }
+
+        function saveData() {
+            localStorage.setItem('concursoReviews', JSON.stringify(subjects));
+        }
+
+        function addSubject() {
+            const name = document.getElementById('subjectName').value.trim();
+            const content = document.getElementById('subjectContent').value.trim();
+            
+            if (!name || !content) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+
+            const id = Date.now().toString();
+            const today = new Date().toISOString().split('T')[0];
+            
+            subjects[id] = {
+                name: name,
+                content: content,
+                reviews: REVIEW_INTERVALS.map(days => ({
+                    days: days,
+                    nextDate: addDays(today, days),
+                    completed: false,
+                    completedDate: null
+                }))
+            };
+
+            document.getElementById('subjectName').value = '';
+            document.getElementById('subjectContent').value = '';
+            saveData();
+            renderSubjects();
+        }
+
+        function addDays(dateStr, days) {
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function completeReview(subjectId, reviewIndex) {
+            const today = new Date().toISOString().split('T')[0];
+            subjects[subjectId].reviews[reviewIndex].completed = true;
+            subjects[subjectId].reviews[reviewIndex].completedDate = today;
+
+            if (reviewIndex < subjects[subjectId].reviews.length - 1) {
+                subjects[subjectId].reviews[reviewIndex + 1].nextDate = addDays(today, subjects[subjectId].reviews[reviewIndex + 1].days);
+            }
+
+            saveData();
+            renderSubjects();
+        }
+
+        function deleteSubject(subjectId) {
+            delete subjects[subjectId];
+            saveData();
+            renderSubjects();
+        }
+
+        function renderSubjects() {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.id = `subject-${id}`;
+                
+                let reviewsHTML = subject.reviews.map((review, index) => {
+                    const isOverdue = new Date(review.nextDate) < new Date() && !review.completed;
+                    const isPending = !review.completed && (index === 0 || subjects[id].reviews[index - 1].completed);
+                    const daysUntil = Math.ceil((new Date(review.nextDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    let statusClass = review.completed ? 'done' : (isOverdue ? 'overdue' : 'upcoming');
+                    let statusText = review.completed 
+                        ? `✓ Concluída em ${formatDate(review.completedDate)}`
+                        : (isOverdue ? `⚠️ Atrasada ${Math.abs(daysUntil)} dias` : `📅 Em ${daysUntil} dias`);
+
+                    return `
+                        <div class="review-item ${statusClass}">
+                            <div class="review-info">
+                                <div class="review-days">Revisão ${review.days} dias</div>
+                                <div class="review-date">${statusText} - ${formatDate(review.nextDate)}</div>
+                            </div>
+                            <button class="review-btn" 
+                                    onclick="completeReview('${id}', ${index})"
+                                    ${!isPending || review.completed ? 'disabled' : ''}>
+                                ${review.completed ? '✓' : 'Revisar'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <h3>${subject.name}</h3>
+                            <div class="subject-content">${subject.content}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteSubject('${id}')">✕</button>
+                    </div>
+                    ${reviewsHTML}
+                `;
+
+                grid.appendChild(card);
+            });
+            
+            updateNotificationBadge();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function checkOverdueReviews() {
+            const overdueList = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        overdueList.push({
+                            subjectId: id,
+                            subject: subject.name,
+                            content: subject.content,
+                            days: review.days,
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24))
+                        });
+                    }
+                });
+            });
+
+            if (overdueList.length > 0) {
+                showOverdueModal(overdueList);
+            }
+        }
+
+        function showOverdueModal(overdueList) {
+            const modal = document.getElementById('overdueModal');
+            const list = document.getElementById('overdueList');
+            
+            list.innerHTML = overdueList.map(item => `
+                <div class="overdue-item" onclick="scrollToSubject('${item.subjectId}')">
+                    <strong>${item.subject}</strong><br>
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">${item.content}</span><br>
+                    <span style="margin-top: 0.5rem; display: inline-block;">Revisão ${item.days} dias</span><br>
+                    <span style="color: var(--danger); font-weight: 600;">${item.daysOverdue === 0 ? 'Para revisar hoje!' : `Atrasada há ${item.daysOverdue} dias`}</span>
+                </div>
+            `).join('');
+
+            modal.classList.add('active');
+        }
+
+        function scrollToSubject(subjectId) {
+            closeModal();
+            const element = document.getElementById(`subject-${subjectId}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.style.animation = 'highlight 1.5s ease-out';
+                setTimeout(() => {
+                    element.style.animation = '';
+                }, 1500);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('overdueModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        function updateNotificationBadge() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let count = 0;
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        count++;
+                    }
+                });
+            });
+
+            const badge = document.getElementById('notificationBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const overdueList = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        overdueList.push({
+                            subjectId: id,
+                            subject: subject.name,
+                            content: subject.content,
+                            days: review.days,
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24))
+                        });
+                    }
+                });
+            });
+
+            if (overdueList.length > 0) {
+                showOverdueModal(overdueList);
+            } else {
+                alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
