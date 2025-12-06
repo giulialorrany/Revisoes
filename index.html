@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revisão - Concurso Banco Central</title>
+    <title>Revisão - Concursos</title>
     <style>
         * {
             margin: 0;
@@ -65,6 +65,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 3px solid var(--gray-light);
+            position: relative;
         }
 
         .header h1 {
@@ -76,19 +77,20 @@
         }
 
         .theme-toggle {
-            background: rgba(255, 255, 255, 0.2);
+            background: transparent;
             color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1rem;
+            border: none;
+            padding: 0.5rem;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.5rem;
             transition: all 0.3s;
-            font-weight: 500;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(-50%) scale(1.2);
         }
 
         .notification-btn {
@@ -123,6 +125,21 @@
             font-weight: 700;
             border: 2px solid white;
             animation: pulse 2s infinite;
+        }
+
+        .flashcard-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .flashcard-btn:hover {
+            opacity: 0.8;
         }
 
         @keyframes pulse {
@@ -170,7 +187,7 @@
             font-weight: 600;
         }
 
-        .form-group input {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid var(--border-color);
@@ -178,11 +195,17 @@
             color: var(--text-primary);
             font-size: 1rem;
             transition: border-color 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--accent);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .btn {
@@ -231,10 +254,11 @@
         }
 
         .subject-content {
-            font-size: 0.95rem;
-            color: var(--gray-primary);
+            font-size: 1.1rem;
+            color: var(--text-primary);
             margin-bottom: 1.25rem;
-            font-style: italic;
+            font-weight: 700;
+            font-style: normal;
             padding-left: 0.5rem;
             border-left: 3px solid var(--gray-light);
         }
@@ -322,6 +346,24 @@
         .delete-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 61, 130, 0.2);
+            font-weight: bold;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.3);
         }
 
         .modal {
@@ -414,8 +456,345 @@
             box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
         }
 
+        .start-from-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--gray-lighter);
+            border-left: 4px solid var(--accent);
+        }
+
+        .start-from-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .start-from-section select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .notes-section {
+            margin-top: 1rem;
+            border-top: 2px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .notes-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 0.75rem;
+            background: var(--gray-lighter);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .notes-toggle:hover {
+            background: var(--border-color);
+        }
+
+        .notes-toggle span {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .notes-content {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .notes-content.show {
+            display: block;
+        }
+
+        .notes-content textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .notes-content textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .save-note-btn {
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .save-note-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .edit-modal-content {
+            border: 3px solid var(--accent);
+        }
+
+        .edit-modal-content h2 {
+            color: var(--accent);
+        }
+
+        /* Flashcard Styles */
+        .flashcard-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-lighter) 100%);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .flashcard-page.active {
+            display: block;
+        }
+
+        .flashcard-header {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, var(--gray-primary) 100%);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--gray-light);
+        }
+
+        .flashcard-header h1 {
+            font-size: 1.6rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-flashcard-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .close-flashcard-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .flashcard-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .flashcard-form {
+            background: var(--bg-primary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px var(--shadow);
+            border: 2px solid var(--accent);
+            border-left: 6px solid var(--accent);
+        }
+
+        .flashcard-form h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .flashcard-study-area {
+            background: var(--bg-primary);
+            padding: 2rem;
+            box-shadow: 0 4px 16px var(--shadow);
+            border: 2px solid var(--accent);
+            text-align: center;
+        }
+
+        .flashcard-display {
+            min-height: 300px;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .flashcard-display:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+
+        .flashcard-front {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .flashcard-back {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .flashcard-explanation {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            display: none;
+        }
+
+        .flashcard-back.show, .flashcard-explanation.show {
+            display: block;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .flashcard-actions {
+            display: none;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .flashcard-actions.show {
+            display: flex;
+        }
+
+        .correct-btn, .incorrect-btn {
+            padding: 1rem 2rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .correct-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+        }
+
+        .incorrect-btn {
+            background: linear-gradient(135deg, var(--danger) 0%, #e53935 100%);
+        }
+
+        .correct-btn:hover, .incorrect-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .flashcard-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .stat-correct {
+            color: var(--success);
+        }
+
+        .stat-incorrect {
+            color: var(--danger);
+        }
+
+        .flashcard-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .flashcard-item {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border: 2px solid var(--card-border);
+            border-left: 4px solid var(--accent);
+            position: relative;
+        }
+
+        .flashcard-item h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .flashcard-item-delete {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flashcard-list {
                 grid-template-columns: 1fr;
             }
         }
@@ -423,13 +802,14 @@
 </head>
 <body>
     <div class="header">
-        <h1>📚 Revisão - Concurso Banco Central</h1>
+        <h1>📚 Revisão Concursos</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
         <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="flashcard-btn" onclick="openFlashcards()">🃏 Flashcards</button>
             <button class="notification-btn" onclick="toggleNotifications()">
                 🔔
                 <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
             </button>
-            <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
         </div>
     </div>
 
@@ -444,7 +824,32 @@
                 <label for="subjectContent">Conteúdo da Matéria:</label>
                 <input type="text" id="subjectContent" placeholder="Ex: Princípios da Administração Pública">
             </div>
-            <button class="btn" onclick="addSubject()">Adicionar Matéria</button>
+            <div class="form-group">
+                <label for="subjectNotes">Anotações (opcional):</label>
+                <textarea id="subjectNotes" placeholder="Digite suas anotações aqui..."></textarea>
+            </div>
+            <div class="start-from-section">
+                <label>Marque as revisões já realizadas:</label>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="review7" value="0" style="cursor: pointer;" onchange="updateCheckboxes(0)">
+                        <span>Revisão 7 dias</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="review30" value="1" style="cursor: pointer;" onchange="updateCheckboxes(1)">
+                        <span>Revisão 30 dias</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="review60" value="2" style="cursor: pointer;" onchange="updateCheckboxes(2)">
+                        <span>Revisão 60 dias</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="review90" value="3" style="cursor: pointer;" onchange="updateCheckboxes(3)">
+                        <span>Revisão 90 dias</span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn" onclick="addSubject()" style="margin-top: 1rem;">Adicionar Matéria</button>
         </div>
 
         <div class="subjects-grid" id="subjectsGrid"></div>
@@ -459,9 +864,135 @@
         </div>
     </div>
 
+    <div class="modal" id="editModal">
+        <div class="modal-content edit-modal-content">
+            <h2>✏️ Editar Matéria</h2>
+            <div class="form-group">
+                <label for="editSubjectName">Nome da Matéria:</label>
+                <input type="text" id="editSubjectName">
+            </div>
+            <div class="form-group">
+                <label for="editSubjectContent">Conteúdo da Matéria:</label>
+                <input type="text" id="editSubjectContent">
+            </div>
+            <button class="modal-close" onclick="saveEdit()">Salvar</button>
+            <button class="modal-close" onclick="closeEditModal()" style="margin-top: 0.5rem; background: var(--gray-light);">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Flashcard Page -->
+    <div class="flashcard-page" id="flashcardPage">
+        <div class="flashcard-header">
+            <h1>🃏 Flashcards</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" style="position: absolute; left: 50%; transform: translateX(-50%);">🌓</button>
+            <button class="close-flashcard-btn" onclick="closeFlashcards()">← Voltar</button>
+        </div>
+
+        <div class="flashcard-container">
+            <div class="flashcard-form">
+                <h2>➕ Criar Novo Flashcard</h2>
+                <div class="form-group">
+                    <label for="cardTheme">Tema:</label>
+                    <input type="text" id="cardTheme" placeholder="Digite o tema dos cartões...">
+                </div>
+                <div class="form-group">
+                    <label for="cardCount">Quantos cartões deseja criar?</label>
+                    <input type="number" id="cardCount" min="1" value="1" placeholder="Ex: 5">
+                </div>
+                <button class="btn" onclick="startCreatingCards()">Começar</button>
+            </div>
+
+            <div class="flashcard-creation-area" id="flashcardCreationArea" style="display: none;">
+                <div class="flashcard-form">
+                    <h2 id="creationTitle">Criando Cartões</h2>
+                    <p id="creationProgress" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                    <div class="form-group">
+                        <label for="cardFront">Frente do Cartão:</label>
+                        <textarea id="cardFront" placeholder="Digite a pergunta ou termo..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardBack">Verso do Cartão:</label>
+                        <textarea id="cardBack" placeholder="Digite a resposta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardExplanation">Explicação (opcional):</label>
+                        <textarea id="cardExplanation" placeholder="Digite uma explicação detalhada..."></textarea>
+                    </div>
+                    <button class="btn" onclick="addFlashcard()">Adicionar Cartão</button>
+                    <button class="btn" onclick="cancelCreation()" style="margin-left: 0.5rem; background: var(--gray-light);">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="flashcard-study-area">
+                <h2 style="color: var(--accent); margin-bottom: 1.5rem; font-size: 1.5rem;">📖 Área de Estudo</h2>
+                
+                <div class="form-group" style="max-width: 400px; margin: 0 auto 1.5rem;">
+                    <label for="themeSelect">Selecione o Tema:</label>
+                    <select id="themeSelect" onchange="changeTheme()" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem; cursor: pointer;">
+                        <option value="">Selecione um tema</option>
+                    </select>
+                </div>
+
+                <div class="flashcard-stats">
+                    <div class="stat-correct">✓ Acertos: <span id="correctCount">0</span></div>
+                    <div class="stat-incorrect">✗ Erros: <span id="incorrectCount">0</span></div>
+                </div>
+
+                <div class="flashcard-display" id="flashcardDisplay" onclick="revealCard()">
+                    <div class="flashcard-front" id="cardFrontDisplay">
+                        Selecione um tema para começar a estudar!
+                    </div>
+                    <div class="flashcard-back" id="cardBackDisplay"></div>
+                    <div class="flashcard-explanation" id="cardExplanationDisplay"></div>
+                    <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-primary); font-weight: 700;" id="cardThemeDisplay"></div>
+                </div>
+
+                <div class="flashcard-controls">
+                    <button class="reveal-btn" id="revealBtn" onclick="revealCard()">👁️ Revelar</button>
+                </div>
+
+                <div class="flashcard-actions" id="flashcardActions">
+                    <button class="correct-btn" onclick="markCorrect()">✓ Acertei</button>
+                    <button class="incorrect-btn" onclick="markIncorrect()">✗ Errei</button>
+                </div>
+
+                <div class="flashcard-list" id="flashcardList"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const REVIEW_INTERVALS = [7, 30, 60, 90];
         let subjects = {};
+        let editingSubjectId = null;
+        let flashcards = [];
+        let currentCardIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let cardRevealed = false;
+        let currentTheme = '';
+        let creatingTheme = '';
+        let cardsToCreate = 0;
+        let cardsCreated = 0;
+
+        function updateCheckboxes(index) {
+            const checkboxes = [
+                document.getElementById('review7'),
+                document.getElementById('review30'),
+                document.getElementById('review60'),
+                document.getElementById('review90')
+            ];
+
+            if (checkboxes[index].checked) {
+                for (let i = 0; i < index; i++) {
+                    checkboxes[i].checked = true;
+                }
+            } else {
+                for (let i = index + 1; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = false;
+                }
+            }
+        }
 
         function init() {
             loadData();
@@ -469,6 +1000,8 @@
             updateNotificationBadge();
             checkOverdueReviews();
             loadTheme();
+            loadFlashcards();
+            loadFlashcardStats();
         }
 
         function loadData() {
@@ -483,28 +1016,49 @@
         function addSubject() {
             const name = document.getElementById('subjectName').value.trim();
             const content = document.getElementById('subjectContent').value.trim();
+            const notes = document.getElementById('subjectNotes').value.trim();
+            
+            const completedReviews = [];
+            if (document.getElementById('review7').checked) completedReviews.push(0);
+            if (document.getElementById('review30').checked) completedReviews.push(1);
+            if (document.getElementById('review60').checked) completedReviews.push(2);
+            if (document.getElementById('review90').checked) completedReviews.push(3);
             
             if (!name || !content) {
-                alert('Por favor, preencha todos os campos');
+                alert('Por favor, preencha todos os campos obrigatórios');
                 return;
             }
 
             const id = Date.now().toString();
             const today = new Date().toISOString().split('T')[0];
             
+            let nextReviewIndex = -1;
+            for (let i = 0; i < REVIEW_INTERVALS.length; i++) {
+                if (!completedReviews.includes(i)) {
+                    nextReviewIndex = i;
+                    break;
+                }
+            }
+            
             subjects[id] = {
                 name: name,
                 content: content,
-                reviews: REVIEW_INTERVALS.map(days => ({
+                notes: notes || '',
+                reviews: REVIEW_INTERVALS.map((days, index) => ({
                     days: days,
-                    nextDate: addDays(today, days),
-                    completed: false,
-                    completedDate: null
+                    nextDate: index === nextReviewIndex ? addDays(today, days) : addDays(today, days),
+                    completed: completedReviews.includes(index),
+                    completedDate: completedReviews.includes(index) ? today : null
                 }))
             };
 
             document.getElementById('subjectName').value = '';
             document.getElementById('subjectContent').value = '';
+            document.getElementById('subjectNotes').value = '';
+            document.getElementById('review7').checked = false;
+            document.getElementById('review30').checked = false;
+            document.getElementById('review60').checked = false;
+            document.getElementById('review90').checked = false;
             saveData();
             renderSubjects();
         }
@@ -532,6 +1086,57 @@
             delete subjects[subjectId];
             saveData();
             renderSubjects();
+        }
+
+        function openEditModal(subjectId) {
+            editingSubjectId = subjectId;
+            document.getElementById('editSubjectName').value = subjects[subjectId].name;
+            document.getElementById('editSubjectContent').value = subjects[subjectId].content;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            editingSubjectId = null;
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function saveEdit() {
+            if (!editingSubjectId) return;
+            
+            const name = document.getElementById('editSubjectName').value.trim();
+            const content = document.getElementById('editSubjectContent').value.trim();
+            
+            if (!name || !content) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+
+            subjects[editingSubjectId].name = name;
+            subjects[editingSubjectId].content = content;
+            
+            saveData();
+            renderSubjects();
+            closeEditModal();
+        }
+
+        function toggleNotes(subjectId) {
+            const notesContent = document.getElementById(`notes-${subjectId}`);
+            const arrow = document.getElementById(`arrow-${subjectId}`);
+            
+            if (notesContent.classList.contains('show')) {
+                notesContent.classList.remove('show');
+                arrow.textContent = '▶️';
+            } else {
+                notesContent.classList.add('show');
+                arrow.textContent = '🔽';
+            }
+        }
+
+        function saveNote(subjectId) {
+            const noteText = document.getElementById(`note-text-${subjectId}`).value.trim();
+            subjects[subjectId].notes = noteText;
+            saveData();
+            alert('Anotação salva com sucesso!');
         }
 
         function renderSubjects() {
@@ -568,15 +1173,32 @@
                     `;
                 }).join('');
 
+                const notesSection = `
+                    <div class="notes-section">
+                        <div class="notes-toggle" onclick="toggleNotes('${id}')">
+                            <span>Anotações</span>
+                            <span id="arrow-${id}">▶️</span>
+                        </div>
+                        <div class="notes-content" id="notes-${id}">
+                            <textarea id="note-text-${id}">${subject.notes || ''}</textarea>
+                            <button class="save-note-btn" onclick="saveNote('${id}')">Salvar Anotação</button>
+                        </div>
+                    </div>
+                `;
+
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <div>
                             <h3>${subject.name}</h3>
                             <div class="subject-content">${subject.content}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteSubject('${id}')">✕</button>
+                        <div>
+                            <button class="edit-btn" onclick="openEditModal('${id}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteSubject('${id}')">✕</button>
+                        </div>
                     </div>
                     ${reviewsHTML}
+                    ${notesSection}
                 `;
 
                 grid.appendChild(card);
@@ -716,6 +1338,278 @@
             } else {
                 alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
             }
+        }
+
+        // Flashcard Functions
+        function openFlashcards() {
+            document.getElementById('flashcardPage').classList.add('active');
+            updateThemeSelector();
+            renderFlashcardList();
+            displayCurrentCard();
+        }
+
+        function closeFlashcards() {
+            document.getElementById('flashcardPage').classList.remove('active');
+        }
+
+        function startCreatingCards() {
+            const theme = document.getElementById('cardTheme').value.trim();
+            const count = parseInt(document.getElementById('cardCount').value);
+
+            if (!theme) {
+                alert('Por favor, digite o tema dos cartões');
+                return;
+            }
+
+            if (!count || count < 1) {
+                alert('Por favor, digite uma quantidade válida');
+                return;
+            }
+
+            creatingTheme = theme;
+            cardsToCreate = count;
+            cardsCreated = 0;
+
+            document.querySelector('.flashcard-form').style.display = 'none';
+            document.getElementById('flashcardCreationArea').style.display = 'block';
+            updateCreationProgress();
+        }
+
+        function cancelCreation() {
+            creatingTheme = '';
+            cardsToCreate = 0;
+            cardsCreated = 0;
+            document.querySelector('.flashcard-form').style.display = 'block';
+            document.getElementById('flashcardCreationArea').style.display = 'none';
+            document.getElementById('cardTheme').value = '';
+            document.getElementById('cardCount').value = '1';
+        }
+
+        function updateCreationProgress() {
+            document.getElementById('creationTitle').textContent = `Criando Cartões - Tema: ${creatingTheme}`;
+            document.getElementById('creationProgress').textContent = `Cartão ${cardsCreated + 1} de ${cardsToCreate}`;
+        }
+
+        function loadFlashcards() {
+            const saved = localStorage.getItem('flashcards');
+            if (saved) flashcards = JSON.parse(saved);
+        }
+
+        function saveFlashcards() {
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
+        }
+
+        function loadFlashcardStats() {
+            const savedCorrect = localStorage.getItem('flashcardCorrect');
+            const savedIncorrect = localStorage.getItem('flashcardIncorrect');
+            if (savedCorrect) correctCount = parseInt(savedCorrect);
+            if (savedIncorrect) incorrectCount = parseInt(savedIncorrect);
+            updateStatsDisplay();
+        }
+
+        function saveFlashcardStats() {
+            localStorage.setItem('flashcardCorrect', correctCount.toString());
+            localStorage.setItem('flashcardIncorrect', incorrectCount.toString());
+        }
+
+        function addFlashcard() {
+            const front = document.getElementById('cardFront').value.trim();
+            const back = document.getElementById('cardBack').value.trim();
+            const explanation = document.getElementById('cardExplanation').value.trim();
+
+            if (!front || !back) {
+                alert('Por favor, preencha a frente e o verso do cartão');
+                return;
+            }
+
+            flashcards.push({
+                id: Date.now().toString(),
+                theme: creatingTheme,
+                front: front,
+                back: back,
+                explanation: explanation
+            });
+
+            cardsCreated++;
+
+            document.getElementById('cardFront').value = '';
+            document.getElementById('cardBack').value = '';
+            document.getElementById('cardExplanation').value = '';
+
+            saveFlashcards();
+
+            if (cardsCreated >= cardsToCreate) {
+                alert(`Todos os ${cardsToCreate} cartões do tema "${creatingTheme}" foram criados!`);
+                cancelCreation();
+                updateThemeSelector();
+                renderFlashcardList();
+            } else {
+                updateCreationProgress();
+            }
+        }
+
+        function deleteFlashcard(id) {
+            const card = flashcards.find(c => c.id === id);
+            if (card && card.theme === currentTheme) {
+                const themeCards = flashcards.filter(c => c.theme === currentTheme);
+                if (currentCardIndex >= themeCards.length - 1) {
+                    currentCardIndex = 0;
+                }
+            }
+            
+            flashcards = flashcards.filter(card => card.id !== id);
+            
+            saveFlashcards();
+            updateThemeSelector();
+            renderFlashcardList();
+            displayCurrentCard();
+        }
+
+        function updateThemeSelector() {
+            const themeSelect = document.getElementById('themeSelect');
+            const themes = [...new Set(flashcards.map(card => card.theme))];
+            
+            themeSelect.innerHTML = '<option value="">Selecione um tema</option>';
+            themes.forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme;
+                option.textContent = theme;
+                if (theme === currentTheme) {
+                    option.selected = true;
+                }
+                themeSelect.appendChild(option);
+            });
+        }
+
+        function changeTheme() {
+            const themeSelect = document.getElementById('themeSelect');
+            currentTheme = themeSelect.value;
+            currentCardIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            saveFlashcardStats();
+            updateStatsDisplay();
+            displayCurrentCard();
+        }
+
+        function getCurrentThemeCards() {
+            if (!currentTheme) return [];
+            return flashcards.filter(card => card.theme === currentTheme);
+        }
+
+        function renderFlashcardList() {
+            const list = document.getElementById('flashcardList');
+            list.innerHTML = '';
+
+            if (flashcards.length === 0) {
+                return;
+            }
+
+            const themes = [...new Set(flashcards.map(card => card.theme))];
+            
+            themes.forEach(theme => {
+                const themeSection = document.createElement('div');
+                themeSection.style.gridColumn = '1 / -1';
+                themeSection.style.marginTop = '1.5rem';
+                
+                const themeHeader = document.createElement('h3');
+                themeHeader.textContent = `📚 ${theme}`;
+                themeHeader.style.color = 'var(--accent)';
+                themeHeader.style.marginBottom = '1rem';
+                themeHeader.style.fontSize = '1.2rem';
+                themeHeader.style.borderBottom = '2px solid var(--accent)';
+                themeHeader.style.paddingBottom = '0.5rem';
+                themeSection.appendChild(themeHeader);
+                
+                list.appendChild(themeSection);
+
+                const themeCards = flashcards.filter(card => card.theme === theme);
+                themeCards.forEach((card, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flashcard-item';
+                    item.innerHTML = `
+                        <button class="flashcard-item-delete" onclick="deleteFlashcard('${card.id}')">✕</button>
+                        <h4>Cartão ${index + 1}</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${card.front.substring(0, 50)}${card.front.length > 50 ? '...' : ''}</p>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        function displayCurrentCard() {
+            const frontDisplay = document.getElementById('cardFrontDisplay');
+            const backDisplay = document.getElementById('cardBackDisplay');
+            const explanationDisplay = document.getElementById('cardExplanationDisplay');
+            const themeDisplay = document.getElementById('cardThemeDisplay');
+            const actions = document.getElementById('flashcardActions');
+            const revealBtn = document.getElementById('revealBtn');
+
+            cardRevealed = false;
+            backDisplay.classList.remove('show');
+            explanationDisplay.classList.remove('show');
+            actions.classList.remove('show');
+            revealBtn.style.display = 'block';
+
+            const themeCards = getCurrentThemeCards();
+
+            if (themeCards.length === 0) {
+                frontDisplay.textContent = currentTheme ? `Nenhum cartão encontrado para o tema "${currentTheme}"` : 'Selecione um tema para começar a estudar!';
+                backDisplay.textContent = '';
+                explanationDisplay.textContent = '';
+                themeDisplay.textContent = '';
+                return;
+            }
+
+            const card = themeCards[currentCardIndex];
+            frontDisplay.textContent = card.front;
+            backDisplay.textContent = card.back;
+            explanationDisplay.textContent = card.explanation || '';
+            themeDisplay.textContent = `📚 Tema: ${card.theme}`;
+        }
+
+        function revealCard() {
+            const themeCards = getCurrentThemeCards();
+            if (themeCards.length === 0 || cardRevealed) return;
+
+            const backDisplay = document.getElementById('cardBackDisplay');
+            const explanationDisplay = document.getElementById('cardExplanationDisplay');
+            const actions = document.getElementById('flashcardActions');
+            const revealBtn = document.getElementById('revealBtn');
+
+            backDisplay.classList.add('show');
+            if (explanationDisplay.textContent) {
+                explanationDisplay.classList.add('show');
+            }
+            actions.classList.add('show');
+            revealBtn.style.display = 'none';
+            cardRevealed = true;
+        }
+
+        function markCorrect() {
+            correctCount++;
+            updateStatsDisplay();
+            saveFlashcardStats();
+            nextCard();
+        }
+
+        function markIncorrect() {
+            incorrectCount++;
+            updateStatsDisplay();
+            saveFlashcardStats();
+            nextCard();
+        }
+
+        function nextCard() {
+            const themeCards = getCurrentThemeCards();
+            if (themeCards.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % themeCards.length;
+            displayCurrentCard();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
         }
 
         init();
