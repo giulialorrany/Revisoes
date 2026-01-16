@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revisão - Concursos</title>
+    <title>Revisão - Concurso Banco Central</title>
     <style>
         * {
             margin: 0;
@@ -292,6 +292,20 @@
             opacity: 0.6;
         }
 
+        .review-item.highlight-review {
+            background: #fff3cd;
+            border-left: 6px solid #c62828;
+            box-shadow: 0 0 0 3px #ffc107;
+            transform: scale(1.02);
+            transition: all 0.4s;
+        }
+
+        [data-theme="dark"] .review-item.highlight-review {
+            background: #3e2723;
+            border-left-color: #ef5350;
+            box-shadow: 0 0 0 3px #ffb300;
+        }
+
         .review-info {
             flex: 1;
         }
@@ -562,17 +576,17 @@
             color: var(--accent);
         }
 
-        /* Flashcard Styles */
+        /* Flashcard Styles – exatamente como você enviou */
         .flashcard-page {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-lighter) 100%);
             z-index: 2000;
-            overflow-y: auto;
+            overflow-y: scroll;
         }
 
         .flashcard-page.active {
@@ -802,7 +816,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>📚 Revisão Concursos</h1>
+        <h1>📚 Revisão - Concurso Banco Central</h1>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
         <div style="display: flex; gap: 1rem; align-items: center;">
             <button class="flashcard-btn" onclick="openFlashcards()">🃏 Flashcards</button>
@@ -880,10 +894,10 @@
         </div>
     </div>
 
-    <!-- Flashcard Page -->
+    <!-- Flashcard Page – exatamente como você enviou -->
     <div class="flashcard-page" id="flashcardPage">
         <div class="flashcard-header">
-            <h1>🃏 Flashcards</h1>
+            <h1>🃏 Flashcards - Estudo de Concursos</h1>
             <button class="theme-toggle" onclick="toggleTheme()" style="position: absolute; left: 50%; transform: translateX(-50%);">🌓</button>
             <button class="close-flashcard-btn" onclick="closeFlashcards()">← Voltar</button>
         </div>
@@ -1229,7 +1243,8 @@
                             subject: subject.name,
                             content: subject.content,
                             days: review.days,
-                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24))
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
+                            reviewIndex: index  // ← adicionado para destacar revisão específica
                         });
                     }
                 });
@@ -1245,7 +1260,7 @@
             const list = document.getElementById('overdueList');
             
             list.innerHTML = overdueList.map(item => `
-                <div class="overdue-item" onclick="scrollToSubject('${item.subjectId}')">
+                <div class="overdue-item" onclick="scrollAndHighlightReview('${item.subjectId}', ${item.reviewIndex})">
                     <strong>${item.subject}</strong><br>
                     <span style="font-size: 0.9rem; color: var(--text-secondary);">${item.content}</span><br>
                     <span style="margin-top: 0.5rem; display: inline-block;">Revisão ${item.days} dias</span><br>
@@ -1256,15 +1271,29 @@
             modal.classList.add('active');
         }
 
-        function scrollToSubject(subjectId) {
+        function scrollAndHighlightReview(subjectId, reviewIndex) {
             closeModal();
+
             const element = document.getElementById(`subject-${subjectId}`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.style.animation = 'highlight 1.5s ease-out';
+            if (!element) return;
+
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.style.animation = 'highlight 1.5s ease-out';
+            setTimeout(() => element.style.animation = '', 1500);
+
+            // Abre anotações automaticamente se existirem
+            const notesContent = document.getElementById(`notes-${subjectId}`);
+            if (notesContent && !notesContent.classList.contains('show')) {
+                toggleNotes(subjectId);
+            }
+
+            // Destaca a revisão específica clicada
+            const reviewItems = element.querySelectorAll('.review-item');
+            if (reviewItems[reviewIndex]) {
+                reviewItems[reviewIndex].classList.add('highlight-review');
                 setTimeout(() => {
-                    element.style.animation = '';
-                }, 1500);
+                    reviewItems[reviewIndex].classList.remove('highlight-review');
+                }, 4000);
             }
         }
 
@@ -1327,7 +1356,8 @@
                             subject: subject.name,
                             content: subject.content,
                             days: review.days,
-                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24))
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
+                            reviewIndex: index
                         });
                     }
                 });
@@ -1340,7 +1370,7 @@
             }
         }
 
-        // Flashcard Functions
+        // Flashcard Functions – exatamente como no código que você enviou
         function openFlashcards() {
             document.getElementById('flashcardPage').classList.add('active');
             updateThemeSelector();
