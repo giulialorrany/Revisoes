@@ -415,7 +415,7 @@
             padding: 2.5rem;
             max-width: 580px;
             width: 92%;
-            max-height: 85vh;
+            max-height: 88vh;
             box-shadow: 0 8px 32px var(--shadow);
             border: 3px solid var(--danger);
             animation: modalSlideIn 0.3s ease-out;
@@ -434,16 +434,19 @@
             }
         }
 
-        .modal-header {
-            margin-bottom: 1rem;
+        .modal-content h2 {
+            color: var(--danger);
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
         }
 
         .overdue-list {
             flex: 1;
             overflow-y: auto;
             margin: 1rem 0;
-            padding-right: 8px;
-            max-height: 55vh;
+            padding-right: 10px;
+            max-height: 60vh;
             scroll-behavior: smooth;
         }
 
@@ -493,16 +496,6 @@
             0% { box-shadow: 0 0 0 0 var(--accent); }
             50% { box-shadow: 0 0 30px 10px var(--accent); }
             100% { box-shadow: 0 4px 16px var(--shadow); }
-        }
-
-        .modal-content h2 {
-            color: var(--danger);
-            margin-bottom: 0.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .start-from-section {
@@ -832,20 +825,17 @@
             .subjects-grid {
                 grid-template-columns: 1fr;
             }
-            
             .flashcard-list {
                 grid-template-columns: 1fr;
             }
-            
             .modal-content {
                 width: 95%;
-                max-height: 90vh;
+                max-height: 92vh;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header, Add Section, Search e Grid permanecem iguais -->
     <div class="header">
         <h1>📚 Revisão - Concurso Banco Central</h1>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
@@ -908,13 +898,10 @@
         <div class="subjects-grid" id="subjectsGrid"></div>
     </div>
 
-    <!-- MODAL ATUALIZADA -->
     <div class="modal" id="overdueModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚠️ Revisões Atrasadas!</h2>
-                <p>Você tem revisões pendentes:</p>
-            </div>
+            <h2>⚠️ Revisões Atrasadas!</h2>
+            <p>Você tem revisões pendentes:</p>
             <div class="overdue-list" id="overdueList"></div>
             <button class="modal-close" onclick="closeModal()">Entendi</button>
         </div>
@@ -936,9 +923,7 @@
         </div>
     </div>
 
-    <!-- Flashcard Page (inalterado) -->
     <div class="flashcard-page" id="flashcardPage">
-        <!-- ... (todo o conteúdo de flashcards permanece igual) ... -->
         <div class="flashcard-header">
             <h1>🃏 Flashcards - Estudo de Concursos</h1>
             <button class="theme-toggle" onclick="toggleTheme()" style="position: absolute; left: 50%; transform: translateX(-50%);">🌓</button>
@@ -946,13 +931,79 @@
         </div>
 
         <div class="flashcard-container">
-            <!-- Flashcard content remains the same -->
-            <!-- (O conteúdo completo dos flashcards foi mantido igual ao anterior) -->
+            <div class="flashcard-form">
+                <h2>➕ Criar Novo Flashcard</h2>
+                <div class="form-group">
+                    <label for="cardTheme">Tema:</label>
+                    <input type="text" id="cardTheme" placeholder="Digite o tema dos cartões...">
+                </div>
+                <div class="form-group">
+                    <label for="cardCount">Quantos cartões deseja criar?</label>
+                    <input type="number" id="cardCount" min="1" value="1" placeholder="Ex: 5">
+                </div>
+                <button class="btn" onclick="startCreatingCards()">Começar</button>
+            </div>
+
+            <div class="flashcard-creation-area" id="flashcardCreationArea" style="display: none;">
+                <div class="flashcard-form">
+                    <h2 id="creationTitle">Criando Cartões</h2>
+                    <p id="creationProgress" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                    <div class="form-group">
+                        <label for="cardFront">Frente do Cartão:</label>
+                        <textarea id="cardFront" placeholder="Digite a pergunta ou termo..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardBack">Verso do Cartão:</label>
+                        <textarea id="cardBack" placeholder="Digite a resposta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardExplanation">Explicação (opcional):</label>
+                        <textarea id="cardExplanation" placeholder="Digite uma explicação detalhada..."></textarea>
+                    </div>
+                    <button class="btn" onclick="addFlashcard()">Adicionar Cartão</button>
+                    <button class="btn" onclick="cancelCreation()" style="margin-left: 0.5rem; background: var(--gray-light);">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="flashcard-study-area">
+                <h2 style="color: var(--accent); margin-bottom: 1.5rem; font-size: 1.5rem;">📖 Área de Estudo</h2>
+                
+                <div class="form-group" style="max-width: 400px; margin: 0 auto 1.5rem;">
+                    <label for="themeSelect">Selecione o Tema:</label>
+                    <select id="themeSelect" onchange="changeTheme()" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem; cursor: pointer;">
+                        <option value="">Selecione um tema</option>
+                    </select>
+                </div>
+
+                <div class="flashcard-stats">
+                    <div class="stat-correct">✓ Acertos: <span id="correctCount">0</span></div>
+                    <div class="stat-incorrect">✗ Erros: <span id="incorrectCount">0</span></div>
+                </div>
+
+                <div class="flashcard-display" id="flashcardDisplay" onclick="revealCard()">
+                    <div class="flashcard-front" id="cardFrontDisplay">
+                        Selecione um tema para começar a estudar!
+                    </div>
+                    <div class="flashcard-back" id="cardBackDisplay"></div>
+                    <div class="flashcard-explanation" id="cardExplanationDisplay"></div>
+                    <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-primary); font-weight: 700;" id="cardThemeDisplay"></div>
+                </div>
+
+                <div class="flashcard-controls">
+                    <button class="reveal-btn" id="revealBtn" onclick="revealCard()">👁️ Revelar</button>
+                </div>
+
+                <div class="flashcard-actions" id="flashcardActions">
+                    <button class="correct-btn" onclick="markCorrect()">✓ Acertei</button>
+                    <button class="incorrect-btn" onclick="markIncorrect()">✗ Errei</button>
+                </div>
+
+                <div class="flashcard-list" id="flashcardList"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Todo o JavaScript permanece exatamente igual ao da versão anterior
         const REVIEW_INTERVALS = [1, 7, 30, 60, 90];
         let subjects = {};
         let editingSubjectId = null;
@@ -967,7 +1018,291 @@
         let cardsCreated = 0;
         let currentFilter = '';
 
-        // ... (todas as funções permanecem iguais) ...
+        function updateCheckboxes(index) {
+            const checkboxes = [
+                document.getElementById('review1'),
+                document.getElementById('review7'),
+                document.getElementById('review30'),
+                document.getElementById('review60'),
+                document.getElementById('review90')
+            ];
+
+            if (checkboxes[index].checked) {
+                for (let i = 0; i < index; i++) {
+                    checkboxes[i].checked = true;
+                }
+            } else {
+                for (let i = index + 1; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = false;
+                }
+            }
+        }
+
+        function filterSubjects() {
+            currentFilter = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderSubjects();
+        }
+
+        function init() {
+            loadData();
+            renderSubjects();
+            updateNotificationBadge();
+            checkOverdueReviews();
+            loadTheme();
+            loadFlashcards();
+            loadFlashcardStats();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('concursoReviews');
+            if (saved) subjects = JSON.parse(saved);
+        }
+
+        function saveData() {
+            localStorage.setItem('concursoReviews', JSON.stringify(subjects));
+        }
+
+        function addSubject() {
+            const name = document.getElementById('subjectName').value.trim();
+            const content = document.getElementById('subjectContent').value.trim();
+            const notes = document.getElementById('subjectNotes').value.trim();
+            
+            const completedReviews = [];
+            if (document.getElementById('review1').checked) completedReviews.push(0);
+            if (document.getElementById('review7').checked) completedReviews.push(1);
+            if (document.getElementById('review30').checked) completedReviews.push(2);
+            if (document.getElementById('review60').checked) completedReviews.push(3);
+            if (document.getElementById('review90').checked) completedReviews.push(4);
+            
+            if (!name || !content) {
+                alert('Por favor, preencha todos os campos obrigatórios');
+                return;
+            }
+
+            const id = Date.now().toString();
+            const today = new Date().toISOString().split('T')[0];
+            
+            let nextReviewIndex = completedReviews.length > 0 ? completedReviews.length : 0;
+            
+            subjects[id] = {
+                name: name,
+                content: content,
+                notes: notes || '',
+                reviews: REVIEW_INTERVALS.map((days, index) => ({
+                    days: days,
+                    nextDate: addDays(today, days),
+                    completed: completedReviews.includes(index),
+                    completedDate: completedReviews.includes(index) ? today : null
+                }))
+            };
+
+            document.getElementById('subjectName').value = '';
+            document.getElementById('subjectContent').value = '';
+            document.getElementById('subjectNotes').value = '';
+            document.getElementById('review1').checked = false;
+            document.getElementById('review7').checked = false;
+            document.getElementById('review30').checked = false;
+            document.getElementById('review60').checked = false;
+            document.getElementById('review90').checked = false;
+            
+            saveData();
+            renderSubjects();
+        }
+
+        function addDays(dateStr, days) {
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function completeReview(subjectId, reviewIndex) {
+            const today = new Date().toISOString().split('T')[0];
+            const subject = subjects[subjectId];
+            
+            subject.reviews[reviewIndex].completed = true;
+            subject.reviews[reviewIndex].completedDate = today;
+
+            if (reviewIndex === subject.reviews.length - 1) {
+                const newCycleDate = addDays(today, 7);
+                subject.reviews = REVIEW_INTERVALS.map((days, index) => ({
+                    days: days,
+                    nextDate: index === 1 ? newCycleDate : addDays(today, days),
+                    completed: false,
+                    completedDate: null
+                }));
+            } else if (reviewIndex < subject.reviews.length - 1) {
+                subject.reviews[reviewIndex + 1].nextDate = addDays(today, subject.reviews[reviewIndex + 1].days);
+            }
+
+            saveData();
+            renderSubjects();
+        }
+
+        function deleteSubject(subjectId) {
+            delete subjects[subjectId];
+            saveData();
+            renderSubjects();
+        }
+
+        function openEditModal(subjectId) {
+            editingSubjectId = subjectId;
+            document.getElementById('editSubjectName').value = subjects[subjectId].name;
+            document.getElementById('editSubjectContent').value = subjects[subjectId].content;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            editingSubjectId = null;
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function saveEdit() {
+            if (!editingSubjectId) return;
+            
+            const name = document.getElementById('editSubjectName').value.trim();
+            const content = document.getElementById('editSubjectContent').value.trim();
+            
+            if (!name || !content) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+
+            subjects[editingSubjectId].name = name;
+            subjects[editingSubjectId].content = content;
+            
+            saveData();
+            renderSubjects();
+            closeEditModal();
+        }
+
+        function toggleNotes(subjectId) {
+            const notesContent = document.getElementById(`notes-${subjectId}`);
+            const arrow = document.getElementById(`arrow-${subjectId}`);
+            
+            if (notesContent.classList.contains('show')) {
+                notesContent.classList.remove('show');
+                arrow.textContent = '▶️';
+            } else {
+                notesContent.classList.add('show');
+                arrow.textContent = '🔽';
+            }
+        }
+
+        function saveNote(subjectId) {
+            const noteText = document.getElementById(`note-text-${subjectId}`).value.trim();
+            subjects[subjectId].notes = noteText;
+            saveData();
+            alert('Anotação salva com sucesso!');
+        }
+
+        function renderSubjects() {
+            const grid = document.getElementById('subjectsGrid');
+            grid.innerHTML = '';
+
+            const filteredSubjects = Object.entries(subjects).filter(([id, subject]) => {
+                if (!currentFilter) return true;
+                const searchTerm = currentFilter;
+                return subject.name.toLowerCase().includes(searchTerm) || 
+                       subject.content.toLowerCase().includes(searchTerm);
+            });
+
+            filteredSubjects.forEach(([id, subject]) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.id = `subject-${id}`;
+                
+                let reviewsHTML = subject.reviews.map((review, index) => {
+                    const isOverdue = new Date(review.nextDate) < new Date() && !review.completed;
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const daysUntil = Math.ceil((new Date(review.nextDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    let statusClass = review.completed ? 'done' : (isOverdue ? 'overdue' : 'upcoming');
+                    let statusText = review.completed 
+                        ? `✓ Concluída em ${formatDate(review.completedDate)}`
+                        : (isOverdue ? `⚠️ Atrasada ${Math.abs(daysUntil)} dias` : `📅 Em ${daysUntil} dias`);
+
+                    return `
+                        <div class="review-item ${statusClass}">
+                            <div class="review-info">
+                                <div class="review-days">Revisão ${review.days} dias</div>
+                                <div class="review-date">${statusText} - ${formatDate(review.nextDate)}</div>
+                            </div>
+                            <button class="review-btn" 
+                                    onclick="completeReview('${id}', ${index})"
+                                    ${!isPending || review.completed ? 'disabled' : ''}>
+                                ${review.completed ? '✓' : 'Revisar'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                const notesSection = `
+                    <div class="notes-section">
+                        <div class="notes-toggle" onclick="toggleNotes('${id}')">
+                            <span>Anotações</span>
+                            <span id="arrow-${id}">▶️</span>
+                        </div>
+                        <div class="notes-content" id="notes-${id}">
+                            <textarea id="note-text-${id}">${subject.notes || ''}</textarea>
+                            <button class="save-note-btn" onclick="saveNote('${id}')">Salvar Anotação</button>
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <h3>${subject.name}</h3>
+                            <div class="subject-content">${subject.content}</div>
+                        </div>
+                        <div>
+                            <button class="edit-btn" onclick="openEditModal('${id}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteSubject('${id}')">✕</button>
+                        </div>
+                    </div>
+                    ${reviewsHTML}
+                    ${notesSection}
+                `;
+
+                grid.appendChild(card);
+            });
+            
+            updateNotificationBadge();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function checkOverdueReviews() {
+            const overdueList = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        overdueList.push({
+                            subjectId: id,
+                            subject: subject.name,
+                            content: subject.content,
+                            days: review.days,
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
+                            reviewIndex: index
+                        });
+                    }
+                });
+            });
+
+            if (overdueList.length > 0) {
+                showOverdueModal(overdueList);
+            }
+        }
 
         function showOverdueModal(overdueList) {
             const modal = document.getElementById('overdueModal');
@@ -985,8 +1320,370 @@
             modal.classList.add('active');
         }
 
-        // Restante do script permanece inalterado
-        // (init(), filterSubjects(), renderSubjects(), etc.)
+        function scrollAndHighlightReview(subjectId, reviewIndex) {
+            closeModal();
+
+            const element = document.getElementById(`subject-${subjectId}`);
+            if (!element) return;
+
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.style.animation = 'highlight 1.5s ease-out';
+            setTimeout(() => element.style.animation = '', 1500);
+
+            const notesContent = document.getElementById(`notes-${subjectId}`);
+            if (notesContent && !notesContent.classList.contains('show')) {
+                toggleNotes(subjectId);
+            }
+
+            const reviewItems = element.querySelectorAll('.review-item');
+            if (reviewItems[reviewIndex]) {
+                reviewItems[reviewIndex].classList.add('highlight-review');
+                setTimeout(() => {
+                    reviewItems[reviewIndex].classList.remove('highlight-review');
+                }, 4000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('overdueModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        function updateNotificationBadge() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let count = 0;
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        count++;
+                    }
+                });
+            });
+
+            const badge = document.getElementById('notificationBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const overdueList = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            Object.entries(subjects).forEach(([id, subject]) => {
+                subject.reviews.forEach((review, index) => {
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
+                    const reviewDate = new Date(review.nextDate);
+                    reviewDate.setHours(0, 0, 0, 0);
+                    
+                    if (isPending && reviewDate <= today) {
+                        overdueList.push({
+                            subjectId: id,
+                            subject: subject.name,
+                            content: subject.content,
+                            days: review.days,
+                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
+                            reviewIndex: index
+                        });
+                    }
+                });
+            });
+
+            if (overdueList.length > 0) {
+                showOverdueModal(overdueList);
+            } else {
+                alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
+            }
+        }
+
+        // Flashcard Functions
+        function openFlashcards() {
+            document.getElementById('flashcardPage').classList.add('active');
+            updateThemeSelector();
+            renderFlashcardList();
+            displayCurrentCard();
+        }
+
+        function closeFlashcards() {
+            document.getElementById('flashcardPage').classList.remove('active');
+        }
+
+        function startCreatingCards() {
+            const theme = document.getElementById('cardTheme').value.trim();
+            const count = parseInt(document.getElementById('cardCount').value);
+
+            if (!theme) {
+                alert('Por favor, digite o tema dos cartões');
+                return;
+            }
+
+            if (!count || count < 1) {
+                alert('Por favor, digite uma quantidade válida');
+                return;
+            }
+
+            creatingTheme = theme;
+            cardsToCreate = count;
+            cardsCreated = 0;
+
+            document.querySelector('.flashcard-form').style.display = 'none';
+            document.getElementById('flashcardCreationArea').style.display = 'block';
+            updateCreationProgress();
+        }
+
+        function cancelCreation() {
+            creatingTheme = '';
+            cardsToCreate = 0;
+            cardsCreated = 0;
+            document.querySelector('.flashcard-form').style.display = 'block';
+            document.getElementById('flashcardCreationArea').style.display = 'none';
+            document.getElementById('cardTheme').value = '';
+            document.getElementById('cardCount').value = '1';
+        }
+
+        function updateCreationProgress() {
+            document.getElementById('creationTitle').textContent = `Criando Cartões - Tema: ${creatingTheme}`;
+            document.getElementById('creationProgress').textContent = `Cartão ${cardsCreated + 1} de ${cardsToCreate}`;
+        }
+
+        function loadFlashcards() {
+            const saved = localStorage.getItem('flashcards');
+            if (saved) flashcards = JSON.parse(saved);
+        }
+
+        function saveFlashcards() {
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
+        }
+
+        function loadFlashcardStats() {
+            const savedCorrect = localStorage.getItem('flashcardCorrect');
+            const savedIncorrect = localStorage.getItem('flashcardIncorrect');
+            if (savedCorrect) correctCount = parseInt(savedCorrect);
+            if (savedIncorrect) incorrectCount = parseInt(savedIncorrect);
+            updateStatsDisplay();
+        }
+
+        function saveFlashcardStats() {
+            localStorage.setItem('flashcardCorrect', correctCount.toString());
+            localStorage.setItem('flashcardIncorrect', incorrectCount.toString());
+        }
+
+        function addFlashcard() {
+            const front = document.getElementById('cardFront').value.trim();
+            const back = document.getElementById('cardBack').value.trim();
+            const explanation = document.getElementById('cardExplanation').value.trim();
+
+            if (!front || !back) {
+                alert('Por favor, preencha a frente e o verso do cartão');
+                return;
+            }
+
+            flashcards.push({
+                id: Date.now().toString(),
+                theme: creatingTheme,
+                front: front,
+                back: back,
+                explanation: explanation
+            });
+
+            cardsCreated++;
+
+            document.getElementById('cardFront').value = '';
+            document.getElementById('cardBack').value = '';
+            document.getElementById('cardExplanation').value = '';
+
+            saveFlashcards();
+
+            if (cardsCreated >= cardsToCreate) {
+                alert(`Todos os ${cardsToCreate} cartões do tema "${creatingTheme}" foram criados!`);
+                cancelCreation();
+                updateThemeSelector();
+                renderFlashcardList();
+            } else {
+                updateCreationProgress();
+            }
+        }
+
+        function deleteFlashcard(id) {
+            const card = flashcards.find(c => c.id === id);
+            if (card && card.theme === currentTheme) {
+                const themeCards = flashcards.filter(c => c.theme === currentTheme);
+                if (currentCardIndex >= themeCards.length - 1) {
+                    currentCardIndex = 0;
+                }
+            }
+            
+            flashcards = flashcards.filter(card => card.id !== id);
+            
+            saveFlashcards();
+            updateThemeSelector();
+            renderFlashcardList();
+            displayCurrentCard();
+        }
+
+        function updateThemeSelector() {
+            const themeSelect = document.getElementById('themeSelect');
+            const themes = [...new Set(flashcards.map(card => card.theme))];
+            
+            themeSelect.innerHTML = '<option value="">Selecione um tema</option>';
+            themes.forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme;
+                option.textContent = theme;
+                if (theme === currentTheme) {
+                    option.selected = true;
+                }
+                themeSelect.appendChild(option);
+            });
+        }
+
+        function changeTheme() {
+            const themeSelect = document.getElementById('themeSelect');
+            currentTheme = themeSelect.value;
+            currentCardIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            saveFlashcardStats();
+            updateStatsDisplay();
+            displayCurrentCard();
+        }
+
+        function getCurrentThemeCards() {
+            if (!currentTheme) return [];
+            return flashcards.filter(card => card.theme === currentTheme);
+        }
+
+        function renderFlashcardList() {
+            const list = document.getElementById('flashcardList');
+            list.innerHTML = '';
+
+            if (flashcards.length === 0) return;
+
+            const themes = [...new Set(flashcards.map(card => card.theme))];
+            
+            themes.forEach(theme => {
+                const themeSection = document.createElement('div');
+                themeSection.style.gridColumn = '1 / -1';
+                themeSection.style.marginTop = '1.5rem';
+                
+                const themeHeader = document.createElement('h3');
+                themeHeader.textContent = `📚 ${theme}`;
+                themeHeader.style.color = 'var(--accent)';
+                themeHeader.style.marginBottom = '1rem';
+                themeHeader.style.fontSize = '1.2rem';
+                themeHeader.style.borderBottom = '2px solid var(--accent)';
+                themeHeader.style.paddingBottom = '0.5rem';
+                themeSection.appendChild(themeHeader);
+                
+                list.appendChild(themeSection);
+
+                const themeCards = flashcards.filter(card => card.theme === theme);
+                themeCards.forEach((card, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flashcard-item';
+                    item.innerHTML = `
+                        <button class="flashcard-item-delete" onclick="deleteFlashcard('${card.id}')">✕</button>
+                        <h4>Cartão ${index + 1}</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${card.front.substring(0, 50)}${card.front.length > 50 ? '...' : ''}</p>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        function displayCurrentCard() {
+            const frontDisplay = document.getElementById('cardFrontDisplay');
+            const backDisplay = document.getElementById('cardBackDisplay');
+            const explanationDisplay = document.getElementById('cardExplanationDisplay');
+            const themeDisplay = document.getElementById('cardThemeDisplay');
+            const actions = document.getElementById('flashcardActions');
+            const revealBtn = document.getElementById('revealBtn');
+
+            cardRevealed = false;
+            backDisplay.classList.remove('show');
+            explanationDisplay.classList.remove('show');
+            actions.classList.remove('show');
+            revealBtn.style.display = 'block';
+
+            const themeCards = getCurrentThemeCards();
+
+            if (themeCards.length === 0) {
+                frontDisplay.textContent = currentTheme ? `Nenhum cartão encontrado para o tema "${currentTheme}"` : 'Selecione um tema para começar a estudar!';
+                backDisplay.textContent = '';
+                explanationDisplay.textContent = '';
+                themeDisplay.textContent = '';
+                return;
+            }
+
+            const card = themeCards[currentCardIndex];
+            frontDisplay.textContent = card.front;
+            backDisplay.textContent = card.back;
+            explanationDisplay.textContent = card.explanation || '';
+            themeDisplay.textContent = `📚 Tema: ${card.theme}`;
+        }
+
+        function revealCard() {
+            const themeCards = getCurrentThemeCards();
+            if (themeCards.length === 0 || cardRevealed) return;
+
+            const backDisplay = document.getElementById('cardBackDisplay');
+            const explanationDisplay = document.getElementById('cardExplanationDisplay');
+            const actions = document.getElementById('flashcardActions');
+            const revealBtn = document.getElementById('revealBtn');
+
+            backDisplay.classList.add('show');
+            if (explanationDisplay.textContent) explanationDisplay.classList.add('show');
+            actions.classList.add('show');
+            revealBtn.style.display = 'none';
+            cardRevealed = true;
+        }
+
+        function markCorrect() {
+            correctCount++;
+            updateStatsDisplay();
+            saveFlashcardStats();
+            nextCard();
+        }
+
+        function markIncorrect() {
+            incorrectCount++;
+            updateStatsDisplay();
+            saveFlashcardStats();
+            nextCard();
+        }
+
+        function nextCard() {
+            const themeCards = getCurrentThemeCards();
+            if (themeCards.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % themeCards.length;
+            displayCurrentCard();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+        }
 
         init();
     </script>
