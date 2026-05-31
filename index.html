@@ -229,9 +229,10 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
-            max-height: 70vh;
+            max-height: 75vh;
             overflow-y: auto;
-            padding-right: 10px;
+            padding-right: 12px;
+            scroll-behavior: smooth;
         }
 
         .subjects-grid::-webkit-scrollbar {
@@ -496,16 +497,6 @@
             color: var(--accent);
         }
 
-        .start-from-section select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 2px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
         .notes-section {
             margin-top: 1rem;
             border-top: 2px solid var(--border-color);
@@ -588,6 +579,7 @@
             color: var(--accent);
         }
 
+        /* Flashcard Styles */
         .flashcard-page {
             display: none;
             position: fixed;
@@ -826,7 +818,6 @@
     </style>
 </head>
 <body>
-    <!-- TODO O HTML É IDÊNTICO AO ORIGINAL -->
     <div class="header">
         <h1>📚 Revisão - Concurso Banco Central</h1>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
@@ -884,12 +875,10 @@
 
         <div class="form-group" style="margin-bottom: 1rem;">
             <label for="searchInput">🔍 Pesquisar Matéria:</label>
-            <input type="text" id="searchInput" placeholder="Digite o nome da matéria para pesquisar..." onkeyup="filterSubjects()" style="width: 100%;">
+            <input type="text" id="searchInput" placeholder="Digite o nome da matéria..." onkeyup="filterSubjects()" style="width: 100%;">
         </div>
         <div class="subjects-grid" id="subjectsGrid"></div>
     </div>
-
-    <!-- Modais e Flashcards permanecem 100% iguais -->
 
     <div class="modal" id="overdueModal">
         <div class="modal-content">
@@ -916,9 +905,85 @@
         </div>
     </div>
 
+    <!-- Flashcard Page -->
     <div class="flashcard-page" id="flashcardPage">
-        <!-- Flashcard content unchanged -->
-        <!-- ... (todo o conteúdo do flashcards permanece idêntico) ... -->
+        <div class="flashcard-header">
+            <h1>🃏 Flashcards - Estudo de Concursos</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" style="position: absolute; left: 50%; transform: translateX(-50%);">🌓</button>
+            <button class="close-flashcard-btn" onclick="closeFlashcards()">← Voltar</button>
+        </div>
+
+        <div class="flashcard-container">
+            <div class="flashcard-form">
+                <h2>➕ Criar Novo Flashcard</h2>
+                <div class="form-group">
+                    <label for="cardTheme">Tema:</label>
+                    <input type="text" id="cardTheme" placeholder="Digite o tema dos cartões...">
+                </div>
+                <div class="form-group">
+                    <label for="cardCount">Quantos cartões deseja criar?</label>
+                    <input type="number" id="cardCount" min="1" value="1" placeholder="Ex: 5">
+                </div>
+                <button class="btn" onclick="startCreatingCards()">Começar</button>
+            </div>
+
+            <div class="flashcard-creation-area" id="flashcardCreationArea" style="display: none;">
+                <div class="flashcard-form">
+                    <h2 id="creationTitle">Criando Cartões</h2>
+                    <p id="creationProgress" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                    <div class="form-group">
+                        <label for="cardFront">Frente do Cartão:</label>
+                        <textarea id="cardFront" placeholder="Digite a pergunta ou termo..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardBack">Verso do Cartão:</label>
+                        <textarea id="cardBack" placeholder="Digite a resposta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardExplanation">Explicação (opcional):</label>
+                        <textarea id="cardExplanation" placeholder="Digite uma explicação detalhada..."></textarea>
+                    </div>
+                    <button class="btn" onclick="addFlashcard()">Adicionar Cartão</button>
+                    <button class="btn" onclick="cancelCreation()" style="margin-left: 0.5rem; background: var(--gray-light);">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="flashcard-study-area">
+                <h2 style="color: var(--accent); margin-bottom: 1.5rem; font-size: 1.5rem;">📖 Área de Estudo</h2>
+                
+                <div class="form-group" style="max-width: 400px; margin: 0 auto 1.5rem;">
+                    <label for="themeSelect">Selecione o Tema:</label>
+                    <select id="themeSelect" onchange="changeTheme()" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem; cursor: pointer;">
+                        <option value="">Selecione um tema</option>
+                    </select>
+                </div>
+
+                <div class="flashcard-stats">
+                    <div class="stat-correct">✓ Acertos: <span id="correctCount">0</span></div>
+                    <div class="stat-incorrect">✗ Erros: <span id="incorrectCount">0</span></div>
+                </div>
+
+                <div class="flashcard-display" id="flashcardDisplay" onclick="revealCard()">
+                    <div class="flashcard-front" id="cardFrontDisplay">
+                        Selecione um tema para começar a estudar!
+                    </div>
+                    <div class="flashcard-back" id="cardBackDisplay"></div>
+                    <div class="flashcard-explanation" id="cardExplanationDisplay"></div>
+                    <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-primary); font-weight: 700;" id="cardThemeDisplay"></div>
+                </div>
+
+                <div class="flashcard-controls">
+                    <button class="reveal-btn" id="revealBtn" onclick="revealCard()">👁️ Revelar</button>
+                </div>
+
+                <div class="flashcard-actions" id="flashcardActions">
+                    <button class="correct-btn" onclick="markCorrect()">✓ Acertei</button>
+                    <button class="incorrect-btn" onclick="markIncorrect()">✗ Errei</button>
+                </div>
+
+                <div class="flashcard-list" id="flashcardList"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -935,26 +1000,6 @@
         let cardsToCreate = 0;
         let cardsCreated = 0;
         let currentFilter = '';
-
-        // ==================== CORREÇÃO DO ERRO localStorage ====================
-        let memoryStorage = {};
-
-        function safeGetItem(key) {
-            try {
-                return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
-            } catch (e) {
-                return memoryStorage[key] || null;
-            }
-        }
-
-        function safeSetItem(key, value) {
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-            } catch (e) {
-                memoryStorage[key] = value;
-            }
-        }
-        // =====================================================================
 
         function updateCheckboxes(index) {
             const checkboxes = [
@@ -992,12 +1037,12 @@
         }
 
         function loadData() {
-            const saved = safeGetItem('concursoReviews');
-            if (saved) subjects = saved;
+            const saved = localStorage.getItem('concursoReviews');
+            if (saved) subjects = JSON.parse(saved);
         }
 
         function saveData() {
-            safeSetItem('concursoReviews', subjects);
+            localStorage.setItem('concursoReviews', JSON.stringify(subjects));
         }
 
         function addSubject() {
@@ -1020,13 +1065,8 @@
             const id = Date.now().toString();
             const today = new Date().toISOString().split('T')[0];
             
-            let nextReviewIndex = -1;
-            for (let i = 0; i < REVIEW_INTERVALS.length; i++) {
-                if (!completedReviews.includes(i)) {
-                    nextReviewIndex = i;
-                    break;
-                }
-            }
+            // Sempre começa com revisão de 1 dia se nenhuma foi marcada
+            let nextReviewIndex = completedReviews.length > 0 ? completedReviews.length : 0;
             
             subjects[id] = {
                 name: name,
@@ -1034,12 +1074,13 @@
                 notes: notes || '',
                 reviews: REVIEW_INTERVALS.map((days, index) => ({
                     days: days,
-                    nextDate: index === nextReviewIndex ? addDays(today, days) : addDays(today, days),
+                    nextDate: addDays(today, days),
                     completed: completedReviews.includes(index),
                     completedDate: completedReviews.includes(index) ? today : null
                 }))
             };
 
+            // Limpa formulário
             document.getElementById('subjectName').value = '';
             document.getElementById('subjectContent').value = '';
             document.getElementById('subjectNotes').value = '';
@@ -1048,6 +1089,7 @@
             document.getElementById('review30').checked = false;
             document.getElementById('review60').checked = false;
             document.getElementById('review90').checked = false;
+            
             saveData();
             renderSubjects();
         }
@@ -1060,19 +1102,24 @@
 
         function completeReview(subjectId, reviewIndex) {
             const today = new Date().toISOString().split('T')[0];
-            subjects[subjectId].reviews[reviewIndex].completed = true;
-            subjects[subjectId].reviews[reviewIndex].completedDate = today;
+            const subject = subjects[subjectId];
+            
+            subject.reviews[reviewIndex].completed = true;
+            subject.reviews[reviewIndex].completedDate = today;
 
-            if (reviewIndex === subjects[subjectId].reviews.length - 1) {
+            // Se completou a revisão de 90 dias → volta para revisão de 7 dias
+            if (reviewIndex === subject.reviews.length - 1) {
                 const newCycleDate = addDays(today, 7);
-                subjects[subjectId].reviews = REVIEW_INTERVALS.map((days, index) => ({
+                subject.reviews = REVIEW_INTERVALS.map((days, index) => ({
                     days: days,
                     nextDate: index === 1 ? newCycleDate : addDays(today, days),
                     completed: false,
                     completedDate: null
                 }));
-            } else if (reviewIndex < subjects[subjectId].reviews.length - 1) {
-                subjects[subjectId].reviews[reviewIndex + 1].nextDate = addDays(today, subjects[subjectId].reviews[reviewIndex + 1].days);
+            } 
+            // Se não for a última, agenda a próxima
+            else if (reviewIndex < subject.reviews.length - 1) {
+                subject.reviews[reviewIndex + 1].nextDate = addDays(today, subject.reviews[reviewIndex + 1].days);
             }
 
             saveData();
@@ -1140,17 +1187,19 @@
             const grid = document.getElementById('subjectsGrid');
             grid.innerHTML = '';
 
-            Object.entries(subjects).forEach(([id, subject]) => {
-                if (currentFilter && !subject.name.toLowerCase().includes(currentFilter)) {
-                    return;
-                }
+            const filteredSubjects = Object.entries(subjects).filter(([id, subject]) => {
+                if (!currentFilter) return true;
+                return subject.name.toLowerCase().includes(currentFilter);
+            });
+
+            filteredSubjects.forEach(([id, subject]) => {
                 const card = document.createElement('div');
                 card.className = 'subject-card';
                 card.id = `subject-${id}`;
                 
                 let reviewsHTML = subject.reviews.map((review, index) => {
                     const isOverdue = new Date(review.nextDate) < new Date() && !review.completed;
-                    const isPending = !review.completed && (index === 0 || subjects[id].reviews[index - 1].completed);
+                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
                     const daysUntil = Math.ceil((new Date(review.nextDate) - new Date()) / (1000 * 60 * 60 * 24));
                     
                     let statusClass = review.completed ? 'done' : (isOverdue ? 'overdue' : 'upcoming');
@@ -1289,11 +1338,11 @@
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
-            safeSetItem('theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
         function loadTheme() {
-            const savedTheme = safeGetItem('theme') || 'light';
+            const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         }
 
@@ -1354,7 +1403,7 @@
             }
         }
 
-        // Flashcard Functions (sem alterações além do safe storage)
+        // Flashcard Functions (mantidas intactas)
         function openFlashcards() {
             document.getElementById('flashcardPage').classList.add('active');
             updateThemeSelector();
@@ -1370,8 +1419,15 @@
             const theme = document.getElementById('cardTheme').value.trim();
             const count = parseInt(document.getElementById('cardCount').value);
 
-            if (!theme) { alert('Por favor, digite o tema dos cartões'); return; }
-            if (!count || count < 1) { alert('Por favor, digite uma quantidade válida'); return; }
+            if (!theme) {
+                alert('Por favor, digite o tema dos cartões');
+                return;
+            }
+
+            if (!count || count < 1) {
+                alert('Por favor, digite uma quantidade válida');
+                return;
+            }
 
             creatingTheme = theme;
             cardsToCreate = count;
@@ -1398,25 +1454,25 @@
         }
 
         function loadFlashcards() {
-            const saved = safeGetItem('flashcards');
-            if (saved) flashcards = saved;
+            const saved = localStorage.getItem('flashcards');
+            if (saved) flashcards = JSON.parse(saved);
         }
 
         function saveFlashcards() {
-            safeSetItem('flashcards', flashcards);
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
         }
 
         function loadFlashcardStats() {
-            const savedCorrect = safeGetItem('flashcardCorrect');
-            const savedIncorrect = safeGetItem('flashcardIncorrect');
-            if (savedCorrect !== null) correctCount = parseInt(savedCorrect);
-            if (savedIncorrect !== null) incorrectCount = parseInt(savedIncorrect);
+            const savedCorrect = localStorage.getItem('flashcardCorrect');
+            const savedIncorrect = localStorage.getItem('flashcardIncorrect');
+            if (savedCorrect) correctCount = parseInt(savedCorrect);
+            if (savedIncorrect) incorrectCount = parseInt(savedIncorrect);
             updateStatsDisplay();
         }
 
         function saveFlashcardStats() {
-            safeSetItem('flashcardCorrect', correctCount);
-            safeSetItem('flashcardIncorrect', incorrectCount);
+            localStorage.setItem('flashcardCorrect', correctCount.toString());
+            localStorage.setItem('flashcardIncorrect', incorrectCount.toString());
         }
 
         function addFlashcard() {
@@ -1459,7 +1515,9 @@
             const card = flashcards.find(c => c.id === id);
             if (card && card.theme === currentTheme) {
                 const themeCards = flashcards.filter(c => c.theme === currentTheme);
-                if (currentCardIndex >= themeCards.length - 1) currentCardIndex = 0;
+                if (currentCardIndex >= themeCards.length - 1) {
+                    currentCardIndex = 0;
+                }
             }
             
             flashcards = flashcards.filter(card => card.id !== id);
@@ -1479,7 +1537,9 @@
                 const option = document.createElement('option');
                 option.value = theme;
                 option.textContent = theme;
-                if (theme === currentTheme) option.selected = true;
+                if (theme === currentTheme) {
+                    option.selected = true;
+                }
                 themeSelect.appendChild(option);
             });
         }
@@ -1556,6 +1616,9 @@
 
             if (themeCards.length === 0) {
                 frontDisplay.textContent = currentTheme ? `Nenhum cartão encontrado para o tema "${currentTheme}"` : 'Selecione um tema para começar a estudar!';
+                backDisplay.textContent = '';
+                explanationDisplay.textContent = '';
+                themeDisplay.textContent = '';
                 return;
             }
 
