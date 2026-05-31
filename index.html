@@ -875,10 +875,12 @@
 
         <div class="form-group" style="margin-bottom: 1rem;">
             <label for="searchInput">🔍 Pesquisar Matéria:</label>
-            <input type="text" id="searchInput" placeholder="Digite o nome da matéria..." onkeyup="filterSubjects()" style="width: 100%;">
+            <input type="text" id="searchInput" placeholder="Digite o nome ou conteúdo da matéria..." onkeyup="filterSubjects()" style="width: 100%;">
         </div>
         <div class="subjects-grid" id="subjectsGrid"></div>
     </div>
+
+    <!-- O restante do HTML (modais, flashcards, etc.) permanece igual -->
 
     <div class="modal" id="overdueModal">
         <div class="modal-content">
@@ -905,7 +907,7 @@
         </div>
     </div>
 
-    <!-- Flashcard Page -->
+    <!-- Flashcard Page (mantido igual) -->
     <div class="flashcard-page" id="flashcardPage">
         <div class="flashcard-header">
             <h1>🃏 Flashcards - Estudo de Concursos</h1>
@@ -1065,7 +1067,6 @@
             const id = Date.now().toString();
             const today = new Date().toISOString().split('T')[0];
             
-            // Sempre começa com revisão de 1 dia se nenhuma foi marcada
             let nextReviewIndex = completedReviews.length > 0 ? completedReviews.length : 0;
             
             subjects[id] = {
@@ -1080,7 +1081,6 @@
                 }))
             };
 
-            // Limpa formulário
             document.getElementById('subjectName').value = '';
             document.getElementById('subjectContent').value = '';
             document.getElementById('subjectNotes').value = '';
@@ -1107,7 +1107,6 @@
             subject.reviews[reviewIndex].completed = true;
             subject.reviews[reviewIndex].completedDate = today;
 
-            // Se completou a revisão de 90 dias → volta para revisão de 7 dias
             if (reviewIndex === subject.reviews.length - 1) {
                 const newCycleDate = addDays(today, 7);
                 subject.reviews = REVIEW_INTERVALS.map((days, index) => ({
@@ -1116,9 +1115,7 @@
                     completed: false,
                     completedDate: null
                 }));
-            } 
-            // Se não for a última, agenda a próxima
-            else if (reviewIndex < subject.reviews.length - 1) {
+            } else if (reviewIndex < subject.reviews.length - 1) {
                 subject.reviews[reviewIndex + 1].nextDate = addDays(today, subject.reviews[reviewIndex + 1].days);
             }
 
@@ -1189,7 +1186,9 @@
 
             const filteredSubjects = Object.entries(subjects).filter(([id, subject]) => {
                 if (!currentFilter) return true;
-                return subject.name.toLowerCase().includes(currentFilter);
+                const searchTerm = currentFilter;
+                return subject.name.toLowerCase().includes(searchTerm) || 
+                       subject.content.toLowerCase().includes(searchTerm);
             });
 
             filteredSubjects.forEach(([id, subject]) => {
@@ -1403,7 +1402,7 @@
             }
         }
 
-        // Flashcard Functions (mantidas intactas)
+        // === Flashcard Functions (inalteradas) ===
         function openFlashcards() {
             document.getElementById('flashcardPage').classList.add('active');
             updateThemeSelector();
