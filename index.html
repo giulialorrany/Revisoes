@@ -229,6 +229,18 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .subjects-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .subjects-grid::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
         }
 
         .subject-card {
@@ -846,19 +858,23 @@
                 <label>Marque as revisões já realizadas:</label>
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review7" value="0" style="cursor: pointer;" onchange="updateCheckboxes(0)">
+                        <input type="checkbox" id="review1" value="0" style="cursor: pointer;" onchange="updateCheckboxes(0)">
+                        <span>Revisão 1 dia</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                        <input type="checkbox" id="review7" value="1" style="cursor: pointer;" onchange="updateCheckboxes(1)">
                         <span>Revisão 7 dias</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review30" value="1" style="cursor: pointer;" onchange="updateCheckboxes(1)">
+                        <input type="checkbox" id="review30" value="2" style="cursor: pointer;" onchange="updateCheckboxes(2)">
                         <span>Revisão 30 dias</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review60" value="2" style="cursor: pointer;" onchange="updateCheckboxes(2)">
+                        <input type="checkbox" id="review60" value="3" style="cursor: pointer;" onchange="updateCheckboxes(3)">
                         <span>Revisão 60 dias</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review90" value="3" style="cursor: pointer;" onchange="updateCheckboxes(3)">
+                        <input type="checkbox" id="review90" value="4" style="cursor: pointer;" onchange="updateCheckboxes(4)">
                         <span>Revisão 90 dias</span>
                     </label>
                 </div>
@@ -866,6 +882,10 @@
             <button class="btn" onclick="addSubject()" style="margin-top: 1rem;">Adicionar Matéria</button>
         </div>
 
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="searchInput">🔍 Pesquisar Matéria:</label>
+            <input type="text" id="searchInput" placeholder="Digite o nome da matéria para pesquisar..." onkeyup="filterSubjects()" style="width: 100%;">
+        </div>
         <div class="subjects-grid" id="subjectsGrid"></div>
     </div>
 
@@ -976,7 +996,7 @@
     </div>
 
     <script>
-        const REVIEW_INTERVALS = [7, 30, 60, 90];
+        const REVIEW_INTERVALS = [1, 7, 30, 60, 90];
         let subjects = {};
         let editingSubjectId = null;
         let flashcards = [];
@@ -988,9 +1008,11 @@
         let creatingTheme = '';
         let cardsToCreate = 0;
         let cardsCreated = 0;
+        let currentFilter = '';
 
         function updateCheckboxes(index) {
             const checkboxes = [
+                document.getElementById('review1'),
                 document.getElementById('review7'),
                 document.getElementById('review30'),
                 document.getElementById('review60'),
@@ -1006,6 +1028,11 @@
                     checkboxes[i].checked = false;
                 }
             }
+        }
+
+        function filterSubjects() {
+            currentFilter = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderSubjects();
         }
 
         function init() {
@@ -1033,10 +1060,11 @@
             const notes = document.getElementById('subjectNotes').value.trim();
             
             const completedReviews = [];
-            if (document.getElementById('review7').checked) completedReviews.push(0);
-            if (document.getElementById('review30').checked) completedReviews.push(1);
-            if (document.getElementById('review60').checked) completedReviews.push(2);
-            if (document.getElementById('review90').checked) completedReviews.push(3);
+            if (document.getElementById('review1').checked) completedReviews.push(0);
+            if (document.getElementById('review7').checked) completedReviews.push(1);
+            if (document.getElementById('review30').checked) completedReviews.push(2);
+            if (document.getElementById('review60').checked) completedReviews.push(3);
+            if (document.getElementById('review90').checked) completedReviews.push(4);
             
             if (!name || !content) {
                 alert('Por favor, preencha todos os campos obrigatórios');
@@ -1069,6 +1097,7 @@
             document.getElementById('subjectName').value = '';
             document.getElementById('subjectContent').value = '';
             document.getElementById('subjectNotes').value = '';
+            document.getElementById('review1').checked = false;
             document.getElementById('review7').checked = false;
             document.getElementById('review30').checked = false;
             document.getElementById('review60').checked = false;
@@ -1088,7 +1117,17 @@
             subjects[subjectId].reviews[reviewIndex].completed = true;
             subjects[subjectId].reviews[reviewIndex].completedDate = today;
 
-            if (reviewIndex < subjects[subjectId].reviews.length - 1) {
+            // If completing the last review (90 days), cycle back to 7 days review
+            if (reviewIndex === subjects[subjectId].reviews.length - 1) {
+                // Reset to start a new cycle with 7-day review (as per request)
+                const newCycleDate = addDays(today, 7);
+                subjects[subjectId].reviews = REVIEW_INTERVALS.map((days, index) => ({
+                    days: days,
+                    nextDate: index === 1 ? newCycleDate : addDays(today, days),  // Start new cycle at 7 days (index 1)
+                    completed: false,
+                    completedDate: null
+                }));
+            } else if (reviewIndex < subjects[subjectId].reviews.length - 1) {
                 subjects[subjectId].reviews[reviewIndex + 1].nextDate = addDays(today, subjects[subjectId].reviews[reviewIndex + 1].days);
             }
 
@@ -1158,6 +1197,9 @@
             grid.innerHTML = '';
 
             Object.entries(subjects).forEach(([id, subject]) => {
+                if (currentFilter && !subject.name.toLowerCase().includes(currentFilter)) {
+                    return;
+                }
                 const card = document.createElement('div');
                 card.className = 'subject-card';
                 card.id = `subject-${id}`;
