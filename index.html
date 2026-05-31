@@ -5,833 +5,189 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revisão - Concurso Banco Central</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f0f4f8;
-            --text-primary: #1a1a1a;
-            --text-secondary: #546e7a;
-            --border-color: #cfd8dc;
-            --accent: #003d82;
-            --accent-light: #0055b8;
-            --accent-lighter: #4a90e2;
-            --gray-primary: #5a6c7d;
-            --gray-light: #90a4ae;
-            --gray-lighter: #eceff1;
-            --success: #2e7d32;
-            --warning: #f57c00;
-            --danger: #c62828;
-            --shadow: rgba(0, 61, 130, 0.1);
-            --card-border: #b0bec5;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #0f1419;
-            --bg-secondary: #1a1f26;
-            --text-primary: #e1e8ed;
-            --text-secondary: #8899a6;
-            --border-color: #2f3640;
-            --accent: #1565c0;
-            --accent-light: #1976d2;
-            --accent-lighter: #42a5f5;
-            --gray-primary: #78909c;
-            --gray-light: #546e7a;
-            --gray-lighter: #263238;
-            --success: #388e3c;
-            --warning: #fb8c00;
-            --danger: #d32f2f;
-            --shadow: rgba(0, 0, 0, 0.4);
-            --card-border: #37474f;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-lighter) 100%);
-            color: var(--text-primary);
-            transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, var(--gray-primary) 100%);
-            padding: 2rem 2rem;
-            box-shadow: 0 4px 20px var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid var(--gray-light);
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 1.6rem;
-            color: white;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: 0.5px;
-        }
-
-        .theme-toggle {
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 0.5rem;
-            cursor: pointer;
-            font-size: 1.5rem;
-            transition: all 0.3s;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .theme-toggle:hover {
-            transform: translateX(-50%) scale(1.2);
-        }
-
-        .notification-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 1.3rem;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .notification-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-        }
-
-        .flashcard-btn {
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .flashcard-btn:hover {
-            opacity: 0.8;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .add-section {
-            background: var(--bg-primary);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 16px var(--shadow);
-            border: 2px solid var(--accent);
-            border-left: 6px solid var(--accent);
-        }
-
-        .add-section h2 {
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .add-section h2::before {
-            content: "📚";
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 0.875rem 2rem;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.2);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
-        }
-
-        .subjects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            max-height: 75vh;
-            overflow-y: auto;
-            padding-right: 12px;
-            scroll-behavior: smooth;
-        }
-
-        .subjects-grid::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .subjects-grid::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
-        .subject-card {
-            background: var(--bg-primary);
-            padding: 1.75rem;
-            box-shadow: 0 4px 16px var(--shadow);
-            border: 2px solid var(--card-border);
-            border-top: 4px solid var(--accent);
-            transition: all 0.3s;
-        }
-
-        .subject-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px var(--shadow);
-            border-top-color: var(--accent-lighter);
-        }
-
-        .subject-card h3 {
-            margin-bottom: 0.5rem;
-            color: var(--accent);
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .subject-content {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            margin-bottom: 1.25rem;
-            font-weight: 700;
-            font-style: normal;
-            padding-left: 0.5rem;
-            border-left: 3px solid var(--gray-light);
-        }
-
-        .review-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            background: var(--gray-lighter);
-            border-left: 5px solid var(--gray-primary);
-            transition: all 0.2s;
-        }
-
-        .review-item:hover {
-            background: var(--border-color);
-            transform: translateX(4px);
-        }
-
-        .review-item.overdue {
-            border-left-color: var(--danger);
-        }
-
-        .review-item.upcoming {
-            border-left-color: var(--warning);
-        }
-
-        .review-item.done {
-            border-left-color: var(--success);
-            opacity: 0.6;
-        }
-
-        .review-item.highlight-review {
-            background: #fff3cd;
-            border-left: 6px solid #c62828;
-            box-shadow: 0 0 0 3px #ffc107;
-            transform: scale(1.02);
-            transition: all 0.4s;
-        }
-
-        [data-theme="dark"] .review-item.highlight-review {
-            background: #3e2723;
-            border-left-color: #ef5350;
-            box-shadow: 0 0 0 3px #ffb300;
-        }
-
-        .review-info {
-            flex: 1;
-        }
-
-        .review-days {
-            font-weight: 700;
-            color: var(--accent);
-            font-size: 1rem;
-        }
-
-        .review-date {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .review-btn {
-            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
-            color: white;
-            border: none;
-            padding: 0.625rem 1.25rem;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
-        }
-
-        .review-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-        }
-
-        .review-btn:disabled {
-            background: var(--gray-light);
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .delete-btn {
-            background: linear-gradient(135deg, var(--danger) 0%, #e53935 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 1.2rem;
-            margin-left: 0.5rem;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(198, 40, 40, 0.2);
-            font-weight: bold;
-        }
-
-        .delete-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
-        }
-
-        .edit-btn {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-left: 0.5rem;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0, 61, 130, 0.2);
-            font-weight: bold;
-        }
-
-        .edit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.3);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-primary);
-            padding: 2.5rem;
-            max-width: 580px;
-            width: 92%;
-            max-height: 88vh;
-            box-shadow: 0 8px 32px var(--shadow);
-            border: 3px solid var(--danger);
-            animation: modalSlideIn 0.3s ease-out;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-content h2 {
-            color: var(--danger);
-            margin-bottom: 0.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-
-        .overdue-list {
-            flex: 1;
-            overflow-y: auto;
-            margin: 1rem 0;
-            padding-right: 10px;
-            max-height: 60vh;
-            scroll-behavior: smooth;
-        }
-
-        .overdue-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .overdue-list::-webkit-scrollbar-thumb {
-            background: var(--danger);
-            border-radius: 4px;
-        }
-
-        .overdue-item {
-            padding: 1rem;
-            background: var(--gray-lighter);
-            border-left: 5px solid var(--danger);
-            margin-bottom: 0.75rem;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .overdue-item:hover {
-            background: var(--border-color);
-            transform: translateX(4px);
-        }
-
-        .modal-close {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 61, 130, 0.2);
-            margin-top: 1rem;
-        }
-
-        .modal-close:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
-        }
-
-        @keyframes highlight {
-            0% { box-shadow: 0 0 0 0 var(--accent); }
-            50% { box-shadow: 0 0 30px 10px var(--accent); }
-            100% { box-shadow: 0 4px 16px var(--shadow); }
-        }
-
-        .start-from-section {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--gray-lighter);
-            border-left: 4px solid var(--accent);
-        }
-
-        .start-from-section label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--accent);
-        }
-
-        .notes-section {
-            margin-top: 1rem;
-            border-top: 2px solid var(--border-color);
-            padding-top: 1rem;
-        }
-
-        .notes-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            padding: 0.75rem;
-            background: var(--gray-lighter);
-            border: 2px solid var(--border-color);
-            transition: all 0.2s;
-        }
-
-        .notes-toggle:hover {
-            background: var(--border-color);
-        }
-
-        .notes-toggle span {
-            font-weight: 600;
-            color: var(--accent);
-        }
-
-        .notes-content {
-            display: none;
-            margin-top: 0.5rem;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            color: var(--text-primary);
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .notes-content.show {
-            display: block;
-        }
-
-        .notes-content textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            resize: vertical;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .notes-content textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .save-note-btn {
-            margin-top: 0.5rem;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .save-note-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .edit-modal-content {
-            border: 3px solid var(--accent);
-        }
-
-        .edit-modal-content h2 {
-            color: var(--accent);
-        }
-
-        /* Flashcard Styles */
-        .flashcard-page {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-lighter) 100%);
-            z-index: 2000;
-            overflow-y: scroll;
-        }
-
-        .flashcard-page.active {
-            display: block;
-        }
-
-        .flashcard-header {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 50%, var(--gray-primary) 100%);
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 20px var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid var(--gray-light);
-        }
-
-        .flashcard-header h1 {
-            font-size: 1.6rem;
-            color: white;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .close-flashcard-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .close-flashcard-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .flashcard-container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .flashcard-form {
-            background: var(--bg-primary);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 16px var(--shadow);
-            border: 2px solid var(--accent);
-            border-left: 6px solid var(--accent);
-        }
-
-        .flashcard-form h2 {
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            font-size: 1.3rem;
-        }
-
-        .flashcard-study-area {
-            background: var(--bg-primary);
-            padding: 2rem;
-            box-shadow: 0 4px 16px var(--shadow);
-            border: 2px solid var(--accent);
-            text-align: center;
-        }
-
-        .flashcard-display {
-            min-height: 300px;
-            background: var(--bg-secondary);
-            border: 3px solid var(--accent);
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .flashcard-display:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 24px var(--shadow);
-        }
-
-        .flashcard-front {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 1rem;
-        }
-
-        .flashcard-back {
-            font-size: 1.2rem;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .flashcard-explanation {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-style: italic;
-            display: none;
-        }
-
-        .flashcard-back.show, .flashcard-explanation.show {
-            display: block;
-        }
-
-        .flashcard-controls {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .reveal-btn {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .reveal-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .flashcard-actions {
-            display: none;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .flashcard-actions.show {
-            display: flex;
-        }
-
-        .correct-btn, .incorrect-btn {
-            padding: 1rem 2rem;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: 700;
-            transition: all 0.3s;
-            color: white;
-        }
-
-        .correct-btn {
-            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
-        }
-
-        .incorrect-btn {
-            background: linear-gradient(135deg, var(--danger) 0%, #e53935 100%);
-        }
-
-        .correct-btn:hover, .incorrect-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .flashcard-stats {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .stat-correct {
-            color: var(--success);
-        }
-
-        .stat-incorrect {
-            color: var(--danger);
-        }
-
-        .flashcard-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .flashcard-item {
-            background: var(--bg-primary);
-            padding: 1rem;
-            border: 2px solid var(--card-border);
-            border-left: 4px solid var(--accent);
-            position: relative;
-        }
-
-        .flashcard-item h4 {
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .flashcard-item-delete {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .subjects-grid {
-                grid-template-columns: 1fr;
-            }
-            .flashcard-list {
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                width: 95%;
-                max-height: 92vh;
-            }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg-primary:#ffffff;--bg-secondary:#f0f4f8;--text-primary:#1a1a1a;--text-secondary:#546e7a;
+            --border-color:#cfd8dc;--accent:#003d82;--accent-light:#0055b8;--accent-lighter:#4a90e2;
+            --gray-primary:#5a6c7d;--gray-light:#90a4ae;--gray-lighter:#eceff1;--success:#2e7d32;
+            --warning:#f57c00;--danger:#c62828;--shadow:rgba(0,61,130,0.1);--card-border:#b0bec5;
+        }
+        [data-theme="dark"]{
+            --bg-primary:#0f1419;--bg-secondary:#1a1f26;--text-primary:#e1e8ed;--text-secondary:#8899a6;
+            --border-color:#2f3640;--accent:#1565c0;--accent-light:#1976d2;--accent-lighter:#42a5f5;
+            --gray-primary:#78909c;--gray-light:#546e7a;--gray-lighter:#263238;--success:#388e3c;
+            --warning:#fb8c00;--danger:#d32f2f;--shadow:rgba(0,0,0,0.4);--card-border:#37474f;
+        }
+        body{
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+            background:linear-gradient(135deg,var(--bg-secondary)0%,var(--gray-lighter)100%);
+            color:var(--text-primary);transition:background .3s,color .3s;min-height:100vh;
+        }
+        .header{
+            background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)50%,var(--gray-primary)100%);
+            padding:2rem 2rem;box-shadow:0 4px 20px var(--shadow);display:flex;justify-content:space-between;
+            align-items:center;border-bottom:3px solid var(--gray-light);position:relative;
+        }
+        .header h1{font-size:1.6rem;color:#fff;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.2);letter-spacing:.5px}
+        .theme-toggle{background:transparent;color:#fff;border:none;padding:.5rem;cursor:pointer;font-size:1.5rem;
+            transition:all .3s;position:absolute;left:50%;transform:translateX(-50%)}
+        .theme-toggle:hover{transform:translateX(-50%) scale(1.2)}
+        .notification-btn{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3);
+            padding:.5rem 1rem;cursor:pointer;font-size:1.3rem;transition:all .3s;position:relative}
+        .notification-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
+        .notification-badge{position:absolute;top:-8px;right:-8px;background:var(--danger);color:#fff;
+            border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+            font-size:.75rem;font-weight:700;border:2px solid #fff;animation:pulse 2s infinite}
+        .flashcard-btn{background:transparent;color:#fff;border:none;padding:.5rem 1rem;cursor:pointer;
+            font-size:1rem;transition:all .3s;font-weight:500}
+        .flashcard-btn:hover{opacity:.8}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        .container{max-width:1200px;margin:2rem auto;padding:0 2rem}
+        .add-section{background:var(--bg-primary);padding:2rem;margin-bottom:2rem;box-shadow:0 4px 16px var(--shadow);
+            border:2px solid var(--accent);border-left:6px solid var(--accent)}
+        .add-section h2{color:var(--accent);margin-bottom:1.5rem;font-weight:700;font-size:1.3rem;
+            display:flex;align-items:center;gap:.5rem}
+        .add-section h2::before{content:"📚";font-size:1.5rem}
+        .form-group{margin-bottom:1rem}
+        .form-group label{display:block;margin-bottom:.5rem;font-weight:600}
+        .form-group input,.form-group textarea{width:100%;padding:.75rem;border:2px solid var(--border-color);
+            background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;
+            transition:border-color .3s;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+        .form-group textarea{resize:vertical;min-height:80px}
+        .btn{background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)100%);color:#fff;border:none;
+            padding:.875rem 2rem;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s;
+            box-shadow:0 4px 12px rgba(0,61,130,.2)}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,61,130,.3)}
+        .subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;
+            max-height:75vh;overflow-y:auto;padding-right:12px;scroll-behavior:smooth}
+        .subjects-grid::-webkit-scrollbar{width:8px}
+        .subjects-grid::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}
+        .subject-card{background:var(--bg-primary);padding:1.75rem;box-shadow:0 4px 16px var(--shadow);
+            border:2px solid var(--card-border);border-top:4px solid var(--accent);transition:all .3s}
+        .subject-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px var(--shadow);
+            border-top-color:var(--accent-lighter)}
+        .subject-card h3{margin-bottom:.5rem;color:var(--accent);font-weight:700;font-size:1.25rem}
+        .subject-content{font-size:1.1rem;color:var(--text-primary);margin-bottom:1.25rem;font-weight:700;
+            padding-left:.5rem;border-left:3px solid var(--gray-light)}
+        .review-item{display:flex;justify-content:space-between;align-items:center;padding:1rem;
+            margin-bottom:.75rem;background:var(--gray-lighter);border-left:5px solid var(--gray-primary);
+            transition:all .2s}
+        .review-item:hover{background:var(--border-color);transform:translateX(4px)}
+        .review-item.overdue{border-left-color:var(--danger)}
+        .review-item.upcoming{border-left-color:var(--warning)}
+        .review-item.done{border-left-color:var(--success);opacity:.6}
+        .review-item.highlight-review{background:#fff3cd;border-left:6px solid #c62828;
+            box-shadow:0 0 0 3px #ffc107;transform:scale(1.02);transition:all .4s}
+        [data-theme="dark"] .review-item.highlight-review{background:#3e2723;border-left-color:#ef5350;
+            box-shadow:0 0 0 3px #ffb300}
+        .review-info{flex:1}
+        .review-days{font-weight:700;color:var(--accent);font-size:1rem}
+        .review-date{font-size:.85rem;color:var(--text-secondary)}
+        .review-btn{background:linear-gradient(135deg,var(--success)0%,#43a047 100%);color:#fff;border:none;
+            padding:.625rem 1.25rem;cursor:pointer;font-size:.95rem;font-weight:600;transition:all .3s;
+            box-shadow:0 2px 8px rgba(46,125,50,.2)}
+        .review-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 12px rgba(46,125,50,.3)}
+        .review-btn:disabled{background:var(--gray-light);cursor:not-allowed;box-shadow:none}
+        .delete-btn{background:linear-gradient(135deg,var(--danger)0%,#e53935 100%);color:#fff;border:none;
+            padding:.5rem 1rem;cursor:pointer;font-size:1.2rem;margin-left:.5rem;transition:all .3s;
+            box-shadow:0 2px 8px rgba(198,40,40,.2);font-weight:bold}
+        .delete-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(198,40,40,.3)}
+        .edit-btn{background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)100%);color:#fff;border:none;
+            padding:.5rem 1rem;cursor:pointer;font-size:1rem;margin-left:.5rem;transition:all .3s;
+            box-shadow:0 2px 8px rgba(0,61,130,.2);font-weight:bold}
+        .edit-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,61,130,.3)}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);
+            z-index:1000;align-items:center;justify-content:center}
+        .modal.active{display:flex}
+        .modal-content{background:var(--bg-primary);padding:2.5rem;max-width:580px;width:92%;max-height:88vh;
+            box-shadow:0 8px 32px var(--shadow);border:3px solid var(--danger);animation:modalSlideIn .3s ease-out;
+            display:flex;flex-direction:column}
+        @keyframes modalSlideIn{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+        .modal-content h2{color:var(--danger);margin-bottom:.5rem;font-size:1.75rem;font-weight:700}
+        .overdue-list{flex:1;overflow-y:auto;margin:1rem 0;padding-right:10px;max-height:60vh;scroll-behavior:smooth}
+        .overdue-list::-webkit-scrollbar{width:8px}
+        .overdue-list::-webkit-scrollbar-thumb{background:var(--danger);border-radius:4px}
+        .overdue-item{padding:1rem;background:var(--gray-lighter);border-left:5px solid var(--danger);
+            margin-bottom:.75rem;transition:all .2s;cursor:pointer}
+        .overdue-item:hover{background:var(--border-color);transform:translateX(4px)}
+        .modal-close{background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)100%);color:#fff;
+            border:none;padding:1rem 2rem;cursor:pointer;width:100%;font-size:1.1rem;font-weight:600;
+            transition:all .3s;box-shadow:0 4px 12px rgba(0,61,130,.2);margin-top:1rem}
+        .modal-close:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,61,130,.3)}
+        @keyframes highlight{0%{box-shadow:0 0 0 0 var(--accent)}50%{box-shadow:0 0 30px 10px var(--accent)}
+            100%{box-shadow:0 4px 16px var(--shadow)}}
+        .start-from-section{margin-top:1rem;padding:1rem;background:var(--gray-lighter);
+            border-left:4px solid var(--accent)}
+        .start-from-section label{display:block;margin-bottom:.5rem;font-weight:600;color:var(--accent)}
+        .notes-section{margin-top:1rem;border-top:2px solid var(--border-color);padding-top:1rem}
+        .notes-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+            padding:.75rem;background:var(--gray-lighter);border:2px solid var(--border-color);
+            transition:all .2s}
+        .notes-toggle:hover{background:var(--border-color)}
+        .notes-toggle span{font-weight:600;color:var(--accent)}
+        .notes-content{display:none;margin-top:.5rem;padding:1rem;background:var(--bg-secondary);
+            border:2px solid var(--border-color);color:var(--text-primary);white-space:pre-wrap;word-wrap:break-word}
+        .notes-content.show{display:block}
+        .notes-content textarea{width:100%;min-height:100px;padding:.75rem;border:2px solid var(--border-color);
+            background:var(--bg-primary);color:var(--text-primary);font-size:.95rem;resize:vertical;
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        .notes-content textarea:focus{outline:none;border-color:var(--accent)}
+        .save-note-btn{margin-top:.5rem;background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)100%);
+            color:#fff;border:none;padding:.5rem 1rem;cursor:pointer;font-size:.9rem;font-weight:600;
+            transition:all .3s}
+        .save-note-btn:hover{transform:translateY(-2px)}
+        .edit-modal-content{border:3px solid var(--accent)}
+        .edit-modal-content h2{color:var(--accent)}
+        .flashcard-page{display:none;position:fixed;top:0;left:0;width:100%;height:100vh;
+            background:linear-gradient(135deg,var(--bg-secondary)0%,var(--gray-lighter)100%);
+            z-index:2000;overflow-y:scroll}
+        .flashcard-page.active{display:block}
+        .flashcard-header{background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)50%,var(--gray-primary)100%);
+            padding:1.5rem 2rem;box-shadow:0 4px 20px var(--shadow);display:flex;justify-content:space-between;
+            align-items:center;border-bottom:3px solid var(--gray-light)}
+        .flashcard-header h1{font-size:1.6rem;color:#fff;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+        .close-flashcard-btn{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3);
+            padding:.5rem 1rem;cursor:pointer;font-size:1rem;transition:all .3s;font-weight:500}
+        .close-flashcard-btn:hover{background:rgba(255,255,255,.3)}
+        .flashcard-container{max-width:1000px;margin:2rem auto;padding:0 2rem}
+        .flashcard-form{background:var(--bg-primary);padding:2rem;margin-bottom:2rem;
+            box-shadow:0 4px 16px var(--shadow);border:2px solid var(--accent);border-left:6px solid var(--accent)}
+        .flashcard-form h2{color:var(--accent);margin-bottom:1.5rem;font-weight:700;font-size:1.3rem}
+        .flashcard-study-area{background:var(--bg-primary);padding:2rem;box-shadow:0 4px 16px var(--shadow);
+            border:2px solid var(--accent);text-align:center}
+        .flashcard-display{min-height:300px;background:var(--bg-secondary);border:3px solid var(--accent);
+            padding:2rem;margin-bottom:1.5rem;display:flex;flex-direction:column;justify-content:center;
+            align-items:center;cursor:pointer;transition:all .3s}
+        .flashcard-display:hover{transform:scale(1.02);box-shadow:0 8px 24px var(--shadow)}
+        .flashcard-front{font-size:1.5rem;font-weight:700;color:var(--accent);margin-bottom:1rem}
+        .flashcard-back{font-size:1.2rem;color:var(--text-primary);margin-bottom:1rem;display:none}
+        .flashcard-explanation{font-size:1rem;color:var(--text-secondary);font-style:italic;display:none}
+        .flashcard-back.show,.flashcard-explanation.show{display:block}
+        .flashcard-controls{display:flex;gap:1rem;justify-content:center;margin-bottom:1rem}
+        .reveal-btn{background:linear-gradient(135deg,var(--accent)0%,var(--accent-light)100%);color:#fff;
+            border:none;padding:1rem 2rem;cursor:pointer;font-size:1.1rem;font-weight:600;transition:all .3s}
+        .reveal-btn:hover{transform:translateY(-2px)}
+        .flashcard-actions{display:none;gap:1rem;justify-content:center}
+        .flashcard-actions.show{display:flex}
+        .correct-btn,.incorrect-btn{padding:1rem 2rem;border:none;cursor:pointer;font-size:1.2rem;
+            font-weight:700;transition:all .3s;color:#fff}
+        .correct-btn{background:linear-gradient(135deg,var(--success)0%,#43a047 100%)}
+        .incorrect-btn{background:linear-gradient(135deg,var(--danger)0%,#e53935 100%)}
+        .correct-btn:hover,.incorrect-btn:hover{transform:translateY(-2px)}
+        .flashcard-stats{display:flex;gap:2rem;justify-content:center;font-size:1.2rem;font-weight:600}
+        .stat-correct{color:var(--success)}.stat-incorrect{color:var(--danger)}
+        .flashcard-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+            gap:1rem;margin-top:2rem}
+        .flashcard-item{background:var(--bg-primary);padding:1rem;border:2px solid var(--card-border);
+            border-left:4px solid var(--accent);position:relative}
+        .flashcard-item h4{color:var(--accent);margin-bottom:.5rem;font-size:1rem}
+        .flashcard-item-delete{position:absolute;top:.5rem;right:.5rem;background:var(--danger);
+            color:#fff;border:none;padding:.25rem .5rem;cursor:pointer;font-size:.9rem;font-weight:bold}
+        @media (max-width:768px){
+            .subjects-grid{grid-template-columns:1fr}
+            .flashcard-list{grid-template-columns:1fr}
+            .modal-content{width:95%;max-height:92vh}
         }
     </style>
 </head>
@@ -839,11 +195,11 @@
     <div class="header">
         <h1>📚 Revisão - Concurso Banco Central</h1>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
-        <div style="display: flex; gap: 1rem; align-items: center;">
+        <div style="display:flex;gap:1rem;align-items:center">
             <button class="flashcard-btn" onclick="openFlashcards()">🃏 Flashcards</button>
             <button class="notification-btn" onclick="toggleNotifications()">
                 🔔
-                <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+                <span class="notification-badge" id="notificationBadge" style="display:none"></span>
             </button>
         </div>
     </div>
@@ -865,35 +221,35 @@
             </div>
             <div class="start-from-section">
                 <label>Marque as revisões já realizadas:</label>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review1" value="0" style="cursor: pointer;" onchange="updateCheckboxes(0)">
+                <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
+                    <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
+                        <input type="checkbox" id="review1" value="0" onchange="updateCheckboxes(0)">
                         <span>Revisão 1 dia</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review7" value="1" style="cursor: pointer;" onchange="updateCheckboxes(1)">
+                    <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
+                        <input type="checkbox" id="review7" value="1" onchange="updateCheckboxes(1)">
                         <span>Revisão 7 dias</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review30" value="2" style="cursor: pointer;" onchange="updateCheckboxes(2)">
+                    <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
+                        <input type="checkbox" id="review30" value="2" onchange="updateCheckboxes(2)">
                         <span>Revisão 30 dias</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review60" value="3" style="cursor: pointer;" onchange="updateCheckboxes(3)">
+                    <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
+                        <input type="checkbox" id="review60" value="3" onchange="updateCheckboxes(3)">
                         <span>Revisão 60 dias</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" id="review90" value="4" style="cursor: pointer;" onchange="updateCheckboxes(4)">
+                    <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
+                        <input type="checkbox" id="review90" value="4" onchange="updateCheckboxes(4)">
                         <span>Revisão 90 dias</span>
                     </label>
                 </div>
             </div>
-            <button class="btn" onclick="addSubject()" style="margin-top: 1rem;">Adicionar Matéria</button>
+            <button class="btn" onclick="addSubject()" style="margin-top:1rem">Adicionar Matéria</button>
         </div>
 
-        <div class="form-group" style="margin-bottom: 1rem;">
+        <div class="form-group" style="margin-bottom:1rem">
             <label for="searchInput">🔍 Pesquisar Matéria:</label>
-            <input type="text" id="searchInput" placeholder="Digite o nome ou conteúdo da matéria..." onkeyup="filterSubjects()" style="width: 100%;">
+            <input type="text" id="searchInput" placeholder="Digite o nome ou conteúdo da matéria..." onkeyup="filterSubjects()" style="width:100%">
         </div>
         <div class="subjects-grid" id="subjectsGrid"></div>
     </div>
@@ -919,14 +275,14 @@
                 <input type="text" id="editSubjectContent">
             </div>
             <button class="modal-close" onclick="saveEdit()">Salvar</button>
-            <button class="modal-close" onclick="closeEditModal()" style="margin-top: 0.5rem; background: var(--gray-light);">Cancelar</button>
+            <button class="modal-close" onclick="closeEditModal()" style="margin-top:.5rem;background:var(--gray-light)">Cancelar</button>
         </div>
     </div>
 
     <div class="flashcard-page" id="flashcardPage">
         <div class="flashcard-header">
             <h1>🃏 Flashcards - Estudo de Concursos</h1>
-            <button class="theme-toggle" onclick="toggleTheme()" style="position: absolute; left: 50%; transform: translateX(-50%);">🌓</button>
+            <button class="theme-toggle" onclick="toggleTheme()" style="position:absolute;left:50%;transform:translateX(-50%)">🌓</button>
             <button class="close-flashcard-btn" onclick="closeFlashcards()">← Voltar</button>
         </div>
 
@@ -944,10 +300,10 @@
                 <button class="btn" onclick="startCreatingCards()">Começar</button>
             </div>
 
-            <div class="flashcard-creation-area" id="flashcardCreationArea" style="display: none;">
+            <div class="flashcard-creation-area" id="flashcardCreationArea" style="display:none">
                 <div class="flashcard-form">
                     <h2 id="creationTitle">Criando Cartões</h2>
-                    <p id="creationProgress" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                    <p id="creationProgress" style="color:var(--text-secondary);margin-bottom:1rem"></p>
                     <div class="form-group">
                         <label for="cardFront">Frente do Cartão:</label>
                         <textarea id="cardFront" placeholder="Digite a pergunta ou termo..."></textarea>
@@ -961,16 +317,16 @@
                         <textarea id="cardExplanation" placeholder="Digite uma explicação detalhada..."></textarea>
                     </div>
                     <button class="btn" onclick="addFlashcard()">Adicionar Cartão</button>
-                    <button class="btn" onclick="cancelCreation()" style="margin-left: 0.5rem; background: var(--gray-light);">Cancelar</button>
+                    <button class="btn" onclick="cancelCreation()" style="margin-left:.5rem;background:var(--gray-light)">Cancelar</button>
                 </div>
             </div>
 
             <div class="flashcard-study-area">
-                <h2 style="color: var(--accent); margin-bottom: 1.5rem; font-size: 1.5rem;">📖 Área de Estudo</h2>
+                <h2 style="color:var(--accent);margin-bottom:1.5rem;font-size:1.5rem">📖 Área de Estudo</h2>
                 
-                <div class="form-group" style="max-width: 400px; margin: 0 auto 1.5rem;">
+                <div class="form-group" style="max-width:400px;margin:0 auto 1.5rem">
                     <label for="themeSelect">Selecione o Tema:</label>
-                    <select id="themeSelect" onchange="changeTheme()" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem; cursor: pointer;">
+                    <select id="themeSelect" onchange="changeTheme()" style="width:100%;padding:.75rem;border:2px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;cursor:pointer">
                         <option value="">Selecione um tema</option>
                     </select>
                 </div>
@@ -981,12 +337,10 @@
                 </div>
 
                 <div class="flashcard-display" id="flashcardDisplay" onclick="revealCard()">
-                    <div class="flashcard-front" id="cardFrontDisplay">
-                        Selecione um tema para começar a estudar!
-                    </div>
+                    <div class="flashcard-front" id="cardFrontDisplay">Selecione um tema para começar a estudar!</div>
                     <div class="flashcard-back" id="cardBackDisplay"></div>
                     <div class="flashcard-explanation" id="cardExplanationDisplay"></div>
-                    <div style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-primary); font-weight: 700;" id="cardThemeDisplay"></div>
+                    <div style="margin-top:1rem;font-size:1.1rem;color:var(--text-primary);font-weight:700" id="cardThemeDisplay"></div>
                 </div>
 
                 <div class="flashcard-controls">
@@ -1004,253 +358,160 @@
     </div>
 
     <script>
-        const REVIEW_INTERVALS = [1, 7, 30, 60, 90];
-        let subjects = {};
-        let editingSubjectId = null;
-        let flashcards = [];
-        let currentCardIndex = 0;
-        let correctCount = 0;
-        let incorrectCount = 0;
-        let cardRevealed = false;
-        let currentTheme = '';
-        let creatingTheme = '';
-        let cardsToCreate = 0;
-        let cardsCreated = 0;
-        let currentFilter = '';
+        const REVIEW_INTERVALS=[1,7,30,60,90];
+        let subjects={},editingSubjectId=null,flashcards=[],currentCardIndex=0,correctCount=0,incorrectCount=0,
+            cardRevealed=false,currentTheme='',creatingTheme='',cardsToCreate=0,cardsCreated=0,currentFilter='';
 
-        function updateCheckboxes(index) {
-            const checkboxes = [
-                document.getElementById('review1'),
-                document.getElementById('review7'),
-                document.getElementById('review30'),
-                document.getElementById('review60'),
-                document.getElementById('review90')
-            ];
-
-            if (checkboxes[index].checked) {
-                for (let i = 0; i < index; i++) {
-                    checkboxes[i].checked = true;
-                }
-            } else {
-                for (let i = index + 1; i < checkboxes.length; i++) {
-                    checkboxes[i].checked = false;
-                }
-            }
+        function updateCheckboxes(index){
+            const cbs=[document.getElementById('review1'),document.getElementById('review7'),
+                document.getElementById('review30'),document.getElementById('review60'),document.getElementById('review90')];
+            if(cbs[index].checked)for(let i=0;i<index;i++)cbs[i].checked=true;
+            else for(let i=index+1;i<cbs.length;i++)cbs[i].checked=false;
         }
 
-        function filterSubjects() {
-            currentFilter = document.getElementById('searchInput').value.toLowerCase().trim();
+        function filterSubjects(){
+            currentFilter=document.getElementById('searchInput').value.toLowerCase().trim();
             renderSubjects();
         }
 
-        function init() {
-            loadData();
-            renderSubjects();
-            updateNotificationBadge();
-            checkOverdueReviews();
-            loadTheme();
-            loadFlashcards();
-            loadFlashcardStats();
+        function init(){
+            loadData();renderSubjects();updateNotificationBadge();checkOverdueReviews();
+            loadTheme();loadFlashcards();loadFlashcardStats();
         }
 
-        function loadData() {
-            const saved = localStorage.getItem('concursoReviews');
-            if (saved) subjects = JSON.parse(saved);
-        }
+        function loadData(){const s=localStorage.getItem('concursoReviews');if(s)subjects=JSON.parse(s)}
+        function saveData(){localStorage.setItem('concursoReviews',JSON.stringify(subjects))}
 
-        function saveData() {
-            localStorage.setItem('concursoReviews', JSON.stringify(subjects));
-        }
+        function addSubject(){
+            const name=document.getElementById('subjectName').value.trim(),
+                  content=document.getElementById('subjectContent').value.trim(),
+                  notes=document.getElementById('subjectNotes').value.trim();
+            
+            const completedReviews=[];
+            if(document.getElementById('review1').checked)completedReviews.push(0);
+            if(document.getElementById('review7').checked)completedReviews.push(1);
+            if(document.getElementById('review30').checked)completedReviews.push(2);
+            if(document.getElementById('review60').checked)completedReviews.push(3);
+            if(document.getElementById('review90').checked)completedReviews.push(4);
+            
+            if(!name||!content){alert('Por favor, preencha todos os campos obrigatórios');return}
 
-        function addSubject() {
-            const name = document.getElementById('subjectName').value.trim();
-            const content = document.getElementById('subjectContent').value.trim();
-            const notes = document.getElementById('subjectNotes').value.trim();
+            const id=Date.now().toString(),today=new Date().toISOString().split('T')[0];
             
-            const completedReviews = [];
-            if (document.getElementById('review1').checked) completedReviews.push(0);
-            if (document.getElementById('review7').checked) completedReviews.push(1);
-            if (document.getElementById('review30').checked) completedReviews.push(2);
-            if (document.getElementById('review60').checked) completedReviews.push(3);
-            if (document.getElementById('review90').checked) completedReviews.push(4);
-            
-            if (!name || !content) {
-                alert('Por favor, preencha todos os campos obrigatórios');
-                return;
-            }
-
-            const id = Date.now().toString();
-            const today = new Date().toISOString().split('T')[0];
-            
-            let nextReviewIndex = completedReviews.length > 0 ? completedReviews.length : 0;
-            
-            subjects[id] = {
-                name: name,
-                content: content,
-                notes: notes || '',
-                reviews: REVIEW_INTERVALS.map((days, index) => ({
-                    days: days,
-                    nextDate: addDays(today, days),
-                    completed: completedReviews.includes(index),
-                    completedDate: completedReviews.includes(index) ? today : null
+            subjects[id]={
+                name,content,notes:notes||'',
+                reviews:REVIEW_INTERVALS.map((days,idx)=>({
+                    days,nextDate:addDays(today,days),
+                    completed:completedReviews.includes(idx),
+                    completedDate:completedReviews.includes(idx)?today:null
                 }))
             };
 
-            document.getElementById('subjectName').value = '';
-            document.getElementById('subjectContent').value = '';
-            document.getElementById('subjectNotes').value = '';
-            document.getElementById('review1').checked = false;
-            document.getElementById('review7').checked = false;
-            document.getElementById('review30').checked = false;
-            document.getElementById('review60').checked = false;
-            document.getElementById('review90').checked = false;
+            document.getElementById('subjectName').value='';
+            document.getElementById('subjectContent').value='';
+            document.getElementById('subjectNotes').value='';
+            ['review1','review7','review30','review60','review90'].forEach(id=>document.getElementById(id).checked=false);
             
-            saveData();
-            renderSubjects();
+            saveData();renderSubjects();
         }
 
-        function addDays(dateStr, days) {
-            const date = new Date(dateStr);
-            date.setDate(date.getDate() + days);
-            return date.toISOString().split('T')[0];
+        function addDays(dateStr,days){
+            const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];
         }
 
-        function completeReview(subjectId, reviewIndex) {
-            const today = new Date().toISOString().split('T')[0];
-            const subject = subjects[subjectId];
-            
-            subject.reviews[reviewIndex].completed = true;
-            subject.reviews[reviewIndex].completedDate = today;
+        function completeReview(subjectId,reviewIndex){
+            const today=new Date().toISOString().split('T')[0],subject=subjects[subjectId];
+            subject.reviews[reviewIndex].completed=true;
+            subject.reviews[reviewIndex].completedDate=today;
 
-            if (reviewIndex === subject.reviews.length - 1) {
-                const newCycleDate = addDays(today, 7);
-                subject.reviews = REVIEW_INTERVALS.map((days, index) => ({
-                    days: days,
-                    nextDate: index === 1 ? newCycleDate : addDays(today, days),
-                    completed: false,
-                    completedDate: null
+            if(reviewIndex===subject.reviews.length-1){
+                const newCycleDate=addDays(today,7);
+                subject.reviews=REVIEW_INTERVALS.map((days,idx)=>({
+                    days,nextDate:idx===1?newCycleDate:addDays(today,days),completed:false,completedDate:null
                 }));
-            } else if (reviewIndex < subject.reviews.length - 1) {
-                subject.reviews[reviewIndex + 1].nextDate = addDays(today, subject.reviews[reviewIndex + 1].days);
+            }else if(reviewIndex<subject.reviews.length-1){
+                subject.reviews[reviewIndex+1].nextDate=addDays(today,subject.reviews[reviewIndex+1].days);
             }
 
-            saveData();
-            renderSubjects();
+            saveData();renderSubjects();
         }
 
-        function deleteSubject(subjectId) {
-            delete subjects[subjectId];
-            saveData();
-            renderSubjects();
-        }
-
-        function openEditModal(subjectId) {
-            editingSubjectId = subjectId;
-            document.getElementById('editSubjectName').value = subjects[subjectId].name;
-            document.getElementById('editSubjectContent').value = subjects[subjectId].content;
+        function deleteSubject(id){delete subjects[id];saveData();renderSubjects()}
+        
+        function openEditModal(id){
+            editingSubjectId=id;
+            document.getElementById('editSubjectName').value=subjects[id].name;
+            document.getElementById('editSubjectContent').value=subjects[id].content;
             document.getElementById('editModal').classList.add('active');
         }
-
-        function closeEditModal() {
-            editingSubjectId = null;
-            document.getElementById('editModal').classList.remove('active');
+        
+        function closeEditModal(){editingSubjectId=null;document.getElementById('editModal').classList.remove('active')}
+        
+        function saveEdit(){
+            if(!editingSubjectId)return;
+            const name=document.getElementById('editSubjectName').value.trim(),
+                  content=document.getElementById('editSubjectContent').value.trim();
+            if(!name||!content){alert('Por favor, preencha todos os campos');return}
+            subjects[editingSubjectId].name=name;
+            subjects[editingSubjectId].content=content;
+            saveData();renderSubjects();closeEditModal();
         }
 
-        function saveEdit() {
-            if (!editingSubjectId) return;
-            
-            const name = document.getElementById('editSubjectName').value.trim();
-            const content = document.getElementById('editSubjectContent').value.trim();
-            
-            if (!name || !content) {
-                alert('Por favor, preencha todos os campos');
-                return;
-            }
-
-            subjects[editingSubjectId].name = name;
-            subjects[editingSubjectId].content = content;
-            
-            saveData();
-            renderSubjects();
-            closeEditModal();
+        function toggleNotes(id){
+            const nc=document.getElementById(`notes-${id}`),arrow=document.getElementById(`arrow-${id}`);
+            if(nc.classList.contains('show')){nc.classList.remove('show');arrow.textContent='▶️'}
+            else{nc.classList.add('show');arrow.textContent='🔽'}
         }
 
-        function toggleNotes(subjectId) {
-            const notesContent = document.getElementById(`notes-${subjectId}`);
-            const arrow = document.getElementById(`arrow-${subjectId}`);
-            
-            if (notesContent.classList.contains('show')) {
-                notesContent.classList.remove('show');
-                arrow.textContent = '▶️';
-            } else {
-                notesContent.classList.add('show');
-                arrow.textContent = '🔽';
-            }
+        function saveNote(id){
+            subjects[id].notes=document.getElementById(`note-text-${id}`).value.trim();
+            saveData();alert('Anotação salva com sucesso!');
         }
 
-        function saveNote(subjectId) {
-            const noteText = document.getElementById(`note-text-${subjectId}`).value.trim();
-            subjects[subjectId].notes = noteText;
-            saveData();
-            alert('Anotação salva com sucesso!');
-        }
-
-        function renderSubjects() {
-            const grid = document.getElementById('subjectsGrid');
-            grid.innerHTML = '';
-
-            const filteredSubjects = Object.entries(subjects).filter(([id, subject]) => {
-                if (!currentFilter) return true;
-                const searchTerm = currentFilter;
-                return subject.name.toLowerCase().includes(searchTerm) || 
-                       subject.content.toLowerCase().includes(searchTerm);
+        function renderSubjects(){
+            const grid=document.getElementById('subjectsGrid');grid.innerHTML='';
+            const filtered=Object.entries(subjects).filter(([id,s])=>{
+                if(!currentFilter)return true;
+                return s.name.toLowerCase().includes(currentFilter)||s.content.toLowerCase().includes(currentFilter);
             });
 
-            filteredSubjects.forEach(([id, subject]) => {
-                const card = document.createElement('div');
-                card.className = 'subject-card';
-                card.id = `subject-${id}`;
+            const frag=document.createDocumentFragment();
+            
+            filtered.forEach(([id,subject])=>{
+                const card=document.createElement('div');card.className='subject-card';card.id=`subject-${id}`;
                 
-                let reviewsHTML = subject.reviews.map((review, index) => {
-                    const isOverdue = new Date(review.nextDate) < new Date() && !review.completed;
-                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
-                    const daysUntil = Math.ceil((new Date(review.nextDate) - new Date()) / (1000 * 60 * 60 * 24));
+                let reviewsHTML=subject.reviews.map((review,idx)=>{
+                    const isOverdue=new Date(review.nextDate)<new Date()&&!review.completed;
+                    const isPending=!review.completed&&(idx===0||subject.reviews[idx-1].completed);
+                    const daysUntil=Math.ceil((new Date(review.nextDate)-new Date())/(86400000));
                     
-                    let statusClass = review.completed ? 'done' : (isOverdue ? 'overdue' : 'upcoming');
-                    let statusText = review.completed 
-                        ? `✓ Concluída em ${formatDate(review.completedDate)}`
-                        : (isOverdue ? `⚠️ Atrasada ${Math.abs(daysUntil)} dias` : `📅 Em ${daysUntil} dias`);
+                    const statusClass=review.completed?'done':(isOverdue?'overdue':'upcoming');
+                    const statusText=review.completed?`✓ Concluída em ${formatDate(review.completedDate)}`:
+                        (isOverdue?`⚠️ Atrasada ${Math.abs(daysUntil)} dias`:`📅 Em ${daysUntil} dias`);
 
-                    return `
-                        <div class="review-item ${statusClass}">
-                            <div class="review-info">
-                                <div class="review-days">Revisão ${review.days} dias</div>
-                                <div class="review-date">${statusText} - ${formatDate(review.nextDate)}</div>
-                            </div>
-                            <button class="review-btn" 
-                                    onclick="completeReview('${id}', ${index})"
-                                    ${!isPending || review.completed ? 'disabled' : ''}>
-                                ${review.completed ? '✓' : 'Revisar'}
-                            </button>
+                    return `<div class="review-item ${statusClass}">
+                        <div class="review-info">
+                            <div class="review-days">Revisão ${review.days} dias</div>
+                            <div class="review-date">${statusText} - ${formatDate(review.nextDate)}</div>
                         </div>
-                    `;
+                        <button class="review-btn" onclick="completeReview('${id}',${idx})" ${!isPending||review.completed?'disabled':''}>
+                            ${review.completed?'✓':'Revisar'}
+                        </button>
+                    </div>`;
                 }).join('');
 
-                const notesSection = `
-                    <div class="notes-section">
-                        <div class="notes-toggle" onclick="toggleNotes('${id}')">
-                            <span>Anotações</span>
-                            <span id="arrow-${id}">▶️</span>
-                        </div>
-                        <div class="notes-content" id="notes-${id}">
-                            <textarea id="note-text-${id}">${subject.notes || ''}</textarea>
-                            <button class="save-note-btn" onclick="saveNote('${id}')">Salvar Anotação</button>
-                        </div>
+                const notesSection=`<div class="notes-section">
+                    <div class="notes-toggle" onclick="toggleNotes('${id}')">
+                        <span>Anotações</span><span id="arrow-${id}">▶️</span>
                     </div>
-                `;
+                    <div class="notes-content" id="notes-${id}">
+                        <textarea id="note-text-${id}">${subject.notes||''}</textarea>
+                        <button class="save-note-btn" onclick="saveNote('${id}')">Salvar Anotação</button>
+                    </div>
+                </div>`;
 
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                card.innerHTML=`
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
                         <div>
                             <h3>${subject.name}</h3>
                             <div class="subject-content">${subject.content}</div>
@@ -1263,426 +524,266 @@
                     ${reviewsHTML}
                     ${notesSection}
                 `;
-
-                grid.appendChild(card);
+                frag.appendChild(card);
             });
             
+            grid.appendChild(frag);
             updateNotificationBadge();
         }
 
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('pt-BR');
-        }
+        function formatDate(d){return new Date(d).toLocaleDateString('pt-BR')}
 
-        function checkOverdueReviews() {
-            const overdueList = [];
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            Object.entries(subjects).forEach(([id, subject]) => {
-                subject.reviews.forEach((review, index) => {
-                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
-                    const reviewDate = new Date(review.nextDate);
-                    reviewDate.setHours(0, 0, 0, 0);
-                    
-                    if (isPending && reviewDate <= today) {
-                        overdueList.push({
-                            subjectId: id,
-                            subject: subject.name,
-                            content: subject.content,
-                            days: review.days,
-                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
-                            reviewIndex: index
-                        });
+        function checkOverdueReviews(){
+            const overdue=[],today=new Date();today.setHours(0,0,0,0);
+            Object.entries(subjects).forEach(([id,s])=>{
+                s.reviews.forEach((r,idx)=>{
+                    const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
+                    const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
+                    if(pending&&rd<=today){
+                        overdue.push({subjectId:id,subject:s.name,content:s.content,days:r.days,
+                            daysOverdue:Math.ceil((today-rd)/86400000),reviewIndex:idx});
                     }
                 });
             });
-
-            if (overdueList.length > 0) {
-                showOverdueModal(overdueList);
-            }
+            if(overdue.length)showOverdueModal(overdue);
         }
 
-        function showOverdueModal(overdueList) {
-            const modal = document.getElementById('overdueModal');
-            const list = document.getElementById('overdueList');
-            
-            list.innerHTML = overdueList.map(item => `
-                <div class="overdue-item" onclick="scrollAndHighlightReview('${item.subjectId}', ${item.reviewIndex})">
+        function showOverdueModal(list){
+            const modal=document.getElementById('overdueModal'),ol=document.getElementById('overdueList');
+            ol.innerHTML=list.map(item=>`
+                <div class="overdue-item" onclick="scrollAndHighlightReview('${item.subjectId}',${item.reviewIndex})">
                     <strong>${item.subject}</strong><br>
-                    <span style="font-size: 0.9rem; color: var(--text-secondary);">${item.content}</span><br>
-                    <span style="margin-top: 0.5rem; display: inline-block;">Revisão ${item.days} dias</span><br>
-                    <span style="color: var(--danger); font-weight: 600;">${item.daysOverdue === 0 ? 'Para revisar hoje!' : `Atrasada há ${item.daysOverdue} dias`}</span>
+                    <span style="font-size:.9rem;color:var(--text-secondary)">${item.content}</span><br>
+                    <span style="margin-top:.5rem;display:inline-block">Revisão ${item.days} dias</span><br>
+                    <span style="color:var(--danger);font-weight:600">${item.daysOverdue===0?'Para revisar hoje!':`Atrasada há ${item.daysOverdue} dias`}</span>
                 </div>
             `).join('');
-
             modal.classList.add('active');
         }
 
-        function scrollAndHighlightReview(subjectId, reviewIndex) {
+        function scrollAndHighlightReview(sid,ridx){
             closeModal();
+            const el=document.getElementById(`subject-${sid}`);
+            if(!el)return;
+            el.scrollIntoView({behavior:'smooth',block:'center'});
+            el.style.animation='highlight 1.5s ease-out';
+            setTimeout(()=>el.style.animation='',1500);
 
-            const element = document.getElementById(`subject-${subjectId}`);
-            if (!element) return;
+            const nc=document.getElementById(`notes-${sid}`);
+            if(nc&&!nc.classList.contains('show'))toggleNotes(sid);
 
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            element.style.animation = 'highlight 1.5s ease-out';
-            setTimeout(() => element.style.animation = '', 1500);
-
-            const notesContent = document.getElementById(`notes-${subjectId}`);
-            if (notesContent && !notesContent.classList.contains('show')) {
-                toggleNotes(subjectId);
-            }
-
-            const reviewItems = element.querySelectorAll('.review-item');
-            if (reviewItems[reviewIndex]) {
-                reviewItems[reviewIndex].classList.add('highlight-review');
-                setTimeout(() => {
-                    reviewItems[reviewIndex].classList.remove('highlight-review');
-                }, 4000);
+            const items=el.querySelectorAll('.review-item');
+            if(items[ridx]){
+                items[ridx].classList.add('highlight-review');
+                setTimeout(()=>items[ridx].classList.remove('highlight-review'),4000);
             }
         }
 
-        function closeModal() {
-            document.getElementById('overdueModal').classList.remove('active');
+        function closeModal(){document.getElementById('overdueModal').classList.remove('active')}
+
+        function toggleTheme(){
+            const ct=document.documentElement.getAttribute('data-theme');
+            const nt=ct==='dark'?'light':'dark';
+            document.documentElement.setAttribute('data-theme',nt);
+            localStorage.setItem('theme',nt);
         }
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+        function loadTheme(){
+            const t=localStorage.getItem('theme')||'light';
+            document.documentElement.setAttribute('data-theme',t);
         }
 
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+        function updateNotificationBadge(){
+            const today=new Date();today.setHours(0,0,0,0);let count=0;
+            Object.entries(subjects).forEach(([id,s])=>{
+                s.reviews.forEach((r,idx)=>{
+                    const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
+                    const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
+                    if(pending&&rd<=today)count++;
+                });
+            });
+            const badge=document.getElementById('notificationBadge');
+            if(count>0){badge.textContent=count;badge.style.display='flex'}
+            else badge.style.display='none';
         }
 
-        function updateNotificationBadge() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            let count = 0;
-
-            Object.entries(subjects).forEach(([id, subject]) => {
-                subject.reviews.forEach((review, index) => {
-                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
-                    const reviewDate = new Date(review.nextDate);
-                    reviewDate.setHours(0, 0, 0, 0);
-                    
-                    if (isPending && reviewDate <= today) {
-                        count++;
+        function toggleNotifications(){
+            const overdue=[],today=new Date();today.setHours(0,0,0,0);
+            Object.entries(subjects).forEach(([id,s])=>{
+                s.reviews.forEach((r,idx)=>{
+                    const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
+                    const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
+                    if(pending&&rd<=today){
+                        overdue.push({subjectId:id,subject:s.name,content:s.content,days:r.days,
+                            daysOverdue:Math.ceil((today-rd)/86400000),reviewIndex:idx});
                     }
                 });
             });
-
-            const badge = document.getElementById('notificationBadge');
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
+            overdue.length?showOverdueModal(overdue):alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
         }
 
-        function toggleNotifications() {
-            const overdueList = [];
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            Object.entries(subjects).forEach(([id, subject]) => {
-                subject.reviews.forEach((review, index) => {
-                    const isPending = !review.completed && (index === 0 || subject.reviews[index - 1].completed);
-                    const reviewDate = new Date(review.nextDate);
-                    reviewDate.setHours(0, 0, 0, 0);
-                    
-                    if (isPending && reviewDate <= today) {
-                        overdueList.push({
-                            subjectId: id,
-                            subject: subject.name,
-                            content: subject.content,
-                            days: review.days,
-                            daysOverdue: Math.ceil((today - reviewDate) / (1000 * 60 * 60 * 24)),
-                            reviewIndex: index
-                        });
-                    }
-                });
-            });
-
-            if (overdueList.length > 0) {
-                showOverdueModal(overdueList);
-            } else {
-                alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
-            }
-        }
-
-        // Flashcard Functions
-        function openFlashcards() {
+        // Flashcards
+        function openFlashcards(){
             document.getElementById('flashcardPage').classList.add('active');
-            updateThemeSelector();
-            renderFlashcardList();
-            displayCurrentCard();
+            updateThemeSelector();renderFlashcardList();displayCurrentCard();
         }
+        function closeFlashcards(){document.getElementById('flashcardPage').classList.remove('active')}
 
-        function closeFlashcards() {
-            document.getElementById('flashcardPage').classList.remove('active');
-        }
-
-        function startCreatingCards() {
-            const theme = document.getElementById('cardTheme').value.trim();
-            const count = parseInt(document.getElementById('cardCount').value);
-
-            if (!theme) {
-                alert('Por favor, digite o tema dos cartões');
-                return;
-            }
-
-            if (!count || count < 1) {
-                alert('Por favor, digite uma quantidade válida');
-                return;
-            }
-
-            creatingTheme = theme;
-            cardsToCreate = count;
-            cardsCreated = 0;
-
-            document.querySelector('.flashcard-form').style.display = 'none';
-            document.getElementById('flashcardCreationArea').style.display = 'block';
+        function startCreatingCards(){
+            const theme=document.getElementById('cardTheme').value.trim();
+            const count=parseInt(document.getElementById('cardCount').value);
+            if(!theme){alert('Por favor, digite o tema dos cartões');return}
+            if(!count||count<1){alert('Por favor, digite uma quantidade válida');return}
+            creatingTheme=theme;cardsToCreate=count;cardsCreated=0;
+            document.querySelector('.flashcard-form').style.display='none';
+            document.getElementById('flashcardCreationArea').style.display='block';
             updateCreationProgress();
         }
 
-        function cancelCreation() {
-            creatingTheme = '';
-            cardsToCreate = 0;
-            cardsCreated = 0;
-            document.querySelector('.flashcard-form').style.display = 'block';
-            document.getElementById('flashcardCreationArea').style.display = 'none';
-            document.getElementById('cardTheme').value = '';
-            document.getElementById('cardCount').value = '1';
+        function cancelCreation(){
+            creatingTheme='';cardsToCreate=0;cardsCreated=0;
+            document.querySelector('.flashcard-form').style.display='block';
+            document.getElementById('flashcardCreationArea').style.display='none';
+            document.getElementById('cardTheme').value='';
+            document.getElementById('cardCount').value='1';
         }
 
-        function updateCreationProgress() {
-            document.getElementById('creationTitle').textContent = `Criando Cartões - Tema: ${creatingTheme}`;
-            document.getElementById('creationProgress').textContent = `Cartão ${cardsCreated + 1} de ${cardsToCreate}`;
+        function updateCreationProgress(){
+            document.getElementById('creationTitle').textContent=`Criando Cartões - Tema: ${creatingTheme}`;
+            document.getElementById('creationProgress').textContent=`Cartão ${cardsCreated+1} de ${cardsToCreate}`;
         }
 
-        function loadFlashcards() {
-            const saved = localStorage.getItem('flashcards');
-            if (saved) flashcards = JSON.parse(saved);
-        }
+        function loadFlashcards(){const s=localStorage.getItem('flashcards');if(s)flashcards=JSON.parse(s)}
+        function saveFlashcards(){localStorage.setItem('flashcards',JSON.stringify(flashcards))}
 
-        function saveFlashcards() {
-            localStorage.setItem('flashcards', JSON.stringify(flashcards));
-        }
-
-        function loadFlashcardStats() {
-            const savedCorrect = localStorage.getItem('flashcardCorrect');
-            const savedIncorrect = localStorage.getItem('flashcardIncorrect');
-            if (savedCorrect) correctCount = parseInt(savedCorrect);
-            if (savedIncorrect) incorrectCount = parseInt(savedIncorrect);
+        function loadFlashcardStats(){
+            const sc=localStorage.getItem('flashcardCorrect'),si=localStorage.getItem('flashcardIncorrect');
+            if(sc)correctCount=parseInt(sc);if(si)incorrectCount=parseInt(si);
             updateStatsDisplay();
         }
-
-        function saveFlashcardStats() {
-            localStorage.setItem('flashcardCorrect', correctCount.toString());
-            localStorage.setItem('flashcardIncorrect', incorrectCount.toString());
+        function saveFlashcardStats(){
+            localStorage.setItem('flashcardCorrect',correctCount.toString());
+            localStorage.setItem('flashcardIncorrect',incorrectCount.toString());
         }
 
-        function addFlashcard() {
-            const front = document.getElementById('cardFront').value.trim();
-            const back = document.getElementById('cardBack').value.trim();
-            const explanation = document.getElementById('cardExplanation').value.trim();
+        function addFlashcard(){
+            const front=document.getElementById('cardFront').value.trim(),
+                  back=document.getElementById('cardBack').value.trim(),
+                  expl=document.getElementById('cardExplanation').value.trim();
+            if(!front||!back){alert('Por favor, preencha a frente e o verso do cartão');return}
 
-            if (!front || !back) {
-                alert('Por favor, preencha a frente e o verso do cartão');
-                return;
-            }
-
-            flashcards.push({
-                id: Date.now().toString(),
-                theme: creatingTheme,
-                front: front,
-                back: back,
-                explanation: explanation
-            });
-
+            flashcards.push({id:Date.now().toString(),theme:creatingTheme,front,back,explanation:expl});
             cardsCreated++;
-
-            document.getElementById('cardFront').value = '';
-            document.getElementById('cardBack').value = '';
-            document.getElementById('cardExplanation').value = '';
+            document.getElementById('cardFront').value='';
+            document.getElementById('cardBack').value='';
+            document.getElementById('cardExplanation').value='';
 
             saveFlashcards();
-
-            if (cardsCreated >= cardsToCreate) {
+            if(cardsCreated>=cardsToCreate){
                 alert(`Todos os ${cardsToCreate} cartões do tema "${creatingTheme}" foram criados!`);
-                cancelCreation();
-                updateThemeSelector();
-                renderFlashcardList();
-            } else {
-                updateCreationProgress();
-            }
+                cancelCreation();updateThemeSelector();renderFlashcardList();
+            }else updateCreationProgress();
         }
 
-        function deleteFlashcard(id) {
-            const card = flashcards.find(c => c.id === id);
-            if (card && card.theme === currentTheme) {
-                const themeCards = flashcards.filter(c => c.theme === currentTheme);
-                if (currentCardIndex >= themeCards.length - 1) {
-                    currentCardIndex = 0;
-                }
+        function deleteFlashcard(id){
+            const card=flashcards.find(c=>c.id===id);
+            if(card&&card.theme===currentTheme){
+                const tc=flashcards.filter(c=>c.theme===currentTheme);
+                if(currentCardIndex>=tc.length-1)currentCardIndex=0;
             }
-            
-            flashcards = flashcards.filter(card => card.id !== id);
-            
-            saveFlashcards();
-            updateThemeSelector();
-            renderFlashcardList();
-            displayCurrentCard();
+            flashcards=flashcards.filter(c=>c.id!==id);
+            saveFlashcards();updateThemeSelector();renderFlashcardList();displayCurrentCard();
         }
 
-        function updateThemeSelector() {
-            const themeSelect = document.getElementById('themeSelect');
-            const themes = [...new Set(flashcards.map(card => card.theme))];
-            
-            themeSelect.innerHTML = '<option value="">Selecione um tema</option>';
-            themes.forEach(theme => {
-                const option = document.createElement('option');
-                option.value = theme;
-                option.textContent = theme;
-                if (theme === currentTheme) {
-                    option.selected = true;
-                }
-                themeSelect.appendChild(option);
+        function updateThemeSelector(){
+            const sel=document.getElementById('themeSelect');
+            const themes=[...new Set(flashcards.map(c=>c.theme))];
+            sel.innerHTML='<option value="">Selecione um tema</option>';
+            themes.forEach(t=>{
+                const opt=document.createElement('option');
+                opt.value=t;opt.textContent=t;
+                if(t===currentTheme)opt.selected=true;
+                sel.appendChild(opt);
             });
         }
 
-        function changeTheme() {
-            const themeSelect = document.getElementById('themeSelect');
-            currentTheme = themeSelect.value;
-            currentCardIndex = 0;
-            correctCount = 0;
-            incorrectCount = 0;
-            saveFlashcardStats();
-            updateStatsDisplay();
-            displayCurrentCard();
+        function changeTheme(){
+            currentTheme=document.getElementById('themeSelect').value;
+            currentCardIndex=0;correctCount=0;incorrectCount=0;
+            saveFlashcardStats();updateStatsDisplay();displayCurrentCard();
         }
 
-        function getCurrentThemeCards() {
-            if (!currentTheme) return [];
-            return flashcards.filter(card => card.theme === currentTheme);
-        }
+        function getCurrentThemeCards(){return currentTheme?flashcards.filter(c=>c.theme===currentTheme):[]}
 
-        function renderFlashcardList() {
-            const list = document.getElementById('flashcardList');
-            list.innerHTML = '';
+        function renderFlashcardList(){
+            const list=document.getElementById('flashcardList');list.innerHTML='';
+            if(!flashcards.length)return;
+            const themes=[...new Set(flashcards.map(c=>c.theme))];
+            themes.forEach(theme=>{
+                const sec=document.createElement('div');
+                sec.style.gridColumn='1/-1';sec.style.marginTop='1.5rem';
+                const h=document.createElement('h3');
+                h.textContent=`📚 ${theme}`;h.style.color='var(--accent)';h.style.marginBottom='1rem';
+                h.style.fontSize='1.2rem';h.style.borderBottom='2px solid var(--accent)';h.style.paddingBottom='.5rem';
+                sec.appendChild(h);list.appendChild(sec);
 
-            if (flashcards.length === 0) return;
-
-            const themes = [...new Set(flashcards.map(card => card.theme))];
-            
-            themes.forEach(theme => {
-                const themeSection = document.createElement('div');
-                themeSection.style.gridColumn = '1 / -1';
-                themeSection.style.marginTop = '1.5rem';
-                
-                const themeHeader = document.createElement('h3');
-                themeHeader.textContent = `📚 ${theme}`;
-                themeHeader.style.color = 'var(--accent)';
-                themeHeader.style.marginBottom = '1rem';
-                themeHeader.style.fontSize = '1.2rem';
-                themeHeader.style.borderBottom = '2px solid var(--accent)';
-                themeHeader.style.paddingBottom = '0.5rem';
-                themeSection.appendChild(themeHeader);
-                
-                list.appendChild(themeSection);
-
-                const themeCards = flashcards.filter(card => card.theme === theme);
-                themeCards.forEach((card, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'flashcard-item';
-                    item.innerHTML = `
-                        <button class="flashcard-item-delete" onclick="deleteFlashcard('${card.id}')">✕</button>
-                        <h4>Cartão ${index + 1}</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${card.front.substring(0, 50)}${card.front.length > 50 ? '...' : ''}</p>
-                    `;
+                const tcards=flashcards.filter(c=>c.theme===theme);
+                tcards.forEach((card,i)=>{
+                    const item=document.createElement('div');item.className='flashcard-item';
+                    item.innerHTML=`<button class="flashcard-item-delete" onclick="deleteFlashcard('${card.id}')">✕</button>
+                        <h4>Cartão ${i+1}</h4>
+                        <p style="color:var(--text-secondary);font-size:.9rem">${card.front.substring(0,50)}${card.front.length>50?'...':''}</p>`;
                     list.appendChild(item);
                 });
             });
         }
 
-        function displayCurrentCard() {
-            const frontDisplay = document.getElementById('cardFrontDisplay');
-            const backDisplay = document.getElementById('cardBackDisplay');
-            const explanationDisplay = document.getElementById('cardExplanationDisplay');
-            const themeDisplay = document.getElementById('cardThemeDisplay');
-            const actions = document.getElementById('flashcardActions');
-            const revealBtn = document.getElementById('revealBtn');
+        function displayCurrentCard(){
+            const f=document.getElementById('cardFrontDisplay'),
+                  b=document.getElementById('cardBackDisplay'),
+                  e=document.getElementById('cardExplanationDisplay'),
+                  t=document.getElementById('cardThemeDisplay'),
+                  ac=document.getElementById('flashcardActions'),
+                  rb=document.getElementById('revealBtn');
 
-            cardRevealed = false;
-            backDisplay.classList.remove('show');
-            explanationDisplay.classList.remove('show');
-            actions.classList.remove('show');
-            revealBtn.style.display = 'block';
+            cardRevealed=false;
+            b.classList.remove('show');e.classList.remove('show');
+            ac.classList.remove('show');rb.style.display='block';
 
-            const themeCards = getCurrentThemeCards();
-
-            if (themeCards.length === 0) {
-                frontDisplay.textContent = currentTheme ? `Nenhum cartão encontrado para o tema "${currentTheme}"` : 'Selecione um tema para começar a estudar!';
-                backDisplay.textContent = '';
-                explanationDisplay.textContent = '';
-                themeDisplay.textContent = '';
-                return;
+            const cards=getCurrentThemeCards();
+            if(!cards.length){
+                f.textContent=currentTheme?`Nenhum cartão encontrado para o tema "${currentTheme}"`:'Selecione um tema para começar a estudar!';
+                b.textContent='';e.textContent='';t.textContent='';return;
             }
-
-            const card = themeCards[currentCardIndex];
-            frontDisplay.textContent = card.front;
-            backDisplay.textContent = card.back;
-            explanationDisplay.textContent = card.explanation || '';
-            themeDisplay.textContent = `📚 Tema: ${card.theme}`;
+            const card=cards[currentCardIndex];
+            f.textContent=card.front;b.textContent=card.back;
+            e.textContent=card.explanation||'';t.textContent=`📚 Tema: ${card.theme}`;
         }
 
-        function revealCard() {
-            const themeCards = getCurrentThemeCards();
-            if (themeCards.length === 0 || cardRevealed) return;
-
-            const backDisplay = document.getElementById('cardBackDisplay');
-            const explanationDisplay = document.getElementById('cardExplanationDisplay');
-            const actions = document.getElementById('flashcardActions');
-            const revealBtn = document.getElementById('revealBtn');
-
-            backDisplay.classList.add('show');
-            if (explanationDisplay.textContent) explanationDisplay.classList.add('show');
-            actions.classList.add('show');
-            revealBtn.style.display = 'none';
-            cardRevealed = true;
+        function revealCard(){
+            const cards=getCurrentThemeCards();
+            if(!cards.length||cardRevealed)return;
+            document.getElementById('cardBackDisplay').classList.add('show');
+            const expl=document.getElementById('cardExplanationDisplay');
+            if(expl.textContent)expl.classList.add('show');
+            document.getElementById('flashcardActions').classList.add('show');
+            document.getElementById('revealBtn').style.display='none';
+            cardRevealed=true;
         }
 
-        function markCorrect() {
-            correctCount++;
-            updateStatsDisplay();
-            saveFlashcardStats();
-            nextCard();
-        }
+        function markCorrect(){correctCount++;updateStatsDisplay();saveFlashcardStats();nextCard()}
+        function markIncorrect(){incorrectCount++;updateStatsDisplay();saveFlashcardStats();nextCard()}
 
-        function markIncorrect() {
-            incorrectCount++;
-            updateStatsDisplay();
-            saveFlashcardStats();
-            nextCard();
-        }
-
-        function nextCard() {
-            const themeCards = getCurrentThemeCards();
-            if (themeCards.length === 0) return;
-            currentCardIndex = (currentCardIndex + 1) % themeCards.length;
+        function nextCard(){
+            const cards=getCurrentThemeCards();
+            if(!cards.length)return;
+            currentCardIndex=(currentCardIndex+1)%cards.length;
             displayCurrentCard();
         }
 
-        function updateStatsDisplay() {
-            document.getElementById('correctCount').textContent = correctCount;
-            document.getElementById('incorrectCount').textContent = incorrectCount;
+        function updateStatsDisplay(){
+            document.getElementById('correctCount').textContent=correctCount;
+            document.getElementById('incorrectCount').textContent=incorrectCount;
         }
 
         init();
