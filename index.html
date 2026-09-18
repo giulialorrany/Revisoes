@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revisão - Concurso Banco Central</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+
         *{margin:0;padding:0;box-sizing:border-box}
         :root{
             --bg-primary:#ffffff;--bg-secondary:#f0f4f8;--text-primary:#1a1a1a;--text-secondary:#546e7a;
@@ -16,7 +20,7 @@
             --bg-primary:#0f1419;--bg-secondary:#1a1f26;--text-primary:#e1e8ed;--text-secondary:#8899a6;
             --border-color:#2f3640;--accent:#1565c0;--accent-light:#1976d2;--accent-lighter:#42a5f5;
             --gray-primary:#78909c;--gray-light:#546e7a;--gray-lighter:#263238;--success:#388e3c;
-            --warning:#fb8c00;--danger:#d32f2f;--shadow:rgba(0,0,0,0.4);--card-border:#37474f;
+            --warning:#fb8c00;--danger:#d32f2f;--shadow:rgba(0,0,0,.4);--card-border:#37474f;
         }
         body{
             font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
@@ -47,7 +51,7 @@
             border:2px solid var(--accent);border-left:6px solid var(--accent)}
         .add-section h2{color:var(--accent);margin-bottom:1.5rem;font-weight:700;font-size:1.3rem;
             display:flex;align-items:center;gap:.5rem}
-        .add-section h2::before{content:"📚";font-size:1.5rem}
+        .add-section h2::before{content:"➕";font-size:1.5rem}
         .form-group{margin-bottom:1rem}
         .form-group label{display:block;margin-bottom:.5rem;font-weight:600}
         .form-group input,.form-group textarea{width:100%;padding:.75rem;border:2px solid var(--border-color);
@@ -189,9 +193,62 @@
             .flashcard-list{grid-template-columns:1fr}
             .modal-content{width:95%;max-height:92vh}
         }
+
+        .caderno-page{display:none;position:fixed;top:0;left:0;width:100%;height:100vh;z-index:2500;overflow-y:auto}
+        .caderno-page.active{display:block}
+        .caderno-fab{
+            position:fixed;top:6.2rem;right:2rem;width:52px;height:52px;border-radius:50%;
+            background:linear-gradient(135deg,#39FF6A 0%,#1fcf58 100%);color:#062b0f;border:none;
+            font-size:1.4rem;cursor:pointer;box-shadow:0 4px 14px rgba(57,255,106,.45);transition:all .3s;z-index:900;
+            display:flex;align-items:center;justify-content:center
+        }
+        .caderno-fab:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 18px var(--shadow)}
+        .caderno-fab-nota{position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;
+            background:#062b0f;color:#39FF6A;border:2px solid #fff;font-size:.65rem;font-weight:800;
+            display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        .caderno-fechar-btn{position:fixed;top:16px;left:16px;z-index:2600;width:42px;height:42px;border-radius:50%;
+            border:none;background:rgba(0,0,0,.35);color:#fff;font-size:1.2rem;cursor:pointer;
+            box-shadow:0 4px 14px rgba(0,0,0,.4)}
+
+        /* ===== Caderno de Revisão (app embutido) ===== */
+#cadernoPage{
+  --roxo-900:#2D0A4E; --roxo-800:#3E1268; --roxo-500:#7B2CBF; --roxo-400:#9D4EDD; --roxo-200:#D9B8F5;
+  --verde-neon:#39FF6A; --verde-neon-dim:rgba(57,255,106,.18);
+  --ouro:#D4AF37; --ouro-claro:#F3D874;
+  --bg:#12081F; --bg-elevada:#1E0E38; --bg-card:#26123F;
+  --borda:rgba(157,78,221,.35); --texto:#F3EAFC; --texto-fraco:#B7A3D6;
+  --sombra:0 8px 30px rgba(0,0,0,.45); --raio:16px; --raio-sm:10px;
+}#cadernoPage[data-theme="light"]{
+  --bg:#FAF5FF; --bg-elevada:#FFFFFF; --bg-card:#F4E9FF; --borda:rgba(123,44,191,.22);
+  --texto:#2A1245; --texto-fraco:#6B5591; --sombra:0 8px 24px rgba(123,44,191,.14);
+}#cadernoPage *{box-sizing:border-box; margin:0; padding:0;}#cadernoPage{
+  background:radial-gradient(circle at 10% 0%, rgba(123,44,191,.25), transparent 45%),
+             radial-gradient(circle at 90% 15%, rgba(57,255,106,.10), transparent 40%), var(--bg);
+  color:var(--texto); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:120px;
+  transition:background-color .3s, color .3s;
+}#cadernoPage h1, #cadernoPage h2, #cadernoPage h3, #cadernoPage .brand{font-family:'Poppins',sans-serif;}#cadernoPage header{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:22px clamp(16px,4vw,48px) 10px;}#cadernoPage .brand{display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.35rem;}#cadernoPage .brand-icone{width:42px; height:42px; border-radius:12px; background:linear-gradient(145deg,var(--roxo-500),var(--roxo-800));
+  display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--ouro) inset, 0 4px 14px rgba(123,44,191,.5); font-size:1.3rem;}#cadernoPage .brand small{display:block; font-weight:500; font-size:.72rem; color:var(--texto-fraco);}#cadernoPage .topo-acoes{display:flex; align-items:center; gap:10px;}#cadernoPage .icon-btn{width:42px; height:42px; border-radius:50%; border:1px solid var(--borda); background:var(--bg-elevada);
+  color:var(--texto); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .15s, border-color .15s;}#cadernoPage .icon-btn:hover{transform:translateY(-2px); border-color:var(--verde-neon);}#cadernoPage .icon-btn:active{transform:scale(.94);}#cadernoPage .busca-wrap{position:relative; flex:1 1 260px; max-width:420px;}#cadernoPage .busca-wrap input{width:100%; padding:11px 16px 11px 40px; border-radius:999px; border:1px solid var(--borda);
+  background:var(--bg-elevada); color:var(--texto); font-size:.92rem; outline:none; transition:box-shadow .15s, border-color .15s;}#cadernoPage .busca-wrap input:focus{border-color:var(--verde-neon); box-shadow:0 0 0 3px var(--verde-neon-dim);}#cadernoPage .busca-wrap svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:.55;}#cadernoPage main{padding:8px clamp(16px,4vw,48px) 40px; max-width:1180px; margin:0 auto;}#cadernoPage .breadcrumb{display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-size:.92rem; color:var(--texto-fraco); margin:10px 0 22px;}#cadernoPage .breadcrumb button{background:none; border:none; color:var(--texto-fraco); font-size:.92rem; cursor:pointer; padding:4px 2px; border-radius:6px; font-family:inherit;}#cadernoPage .breadcrumb button:hover{color:var(--verde-neon);}#cadernoPage .breadcrumb .atual{color:var(--ouro-claro); font-weight:600;}#cadernoPage .breadcrumb .sep{opacity:.4;}#cadernoPage .cabecalho-secao{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap;}#cadernoPage .cabecalho-secao h1{font-size:clamp(1.4rem,3vw,1.9rem); font-weight:700;}#cadernoPage .cabecalho-secao p{color:var(--texto-fraco); font-size:.9rem; margin-top:4px;}#cadernoPage .btn-revisao{display:flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--verde-neon); color:var(--verde-neon);
+  padding:10px 18px; border-radius:999px; font-family:'Poppins'; font-weight:600; font-size:.85rem; cursor:pointer; transition:all .18s; white-space:nowrap;}#cadernoPage .btn-revisao:hover{background:var(--verde-neon-dim); box-shadow:0 0 22px var(--verde-neon-dim);}#cadernoPage .grid-pastas{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:16px;}#cadernoPage .pasta{position:relative; background:var(--bg-card); border-radius:var(--raio); padding:20px 18px 16px; cursor:pointer;
+  border:1px solid var(--borda); box-shadow:var(--sombra); transition:transform .15s, border-color .15s; overflow:hidden;}#cadernoPage .pasta::before{content:""; position:absolute; top:0; left:0; right:0; height:6px; background:linear-gradient(90deg,var(--ouro),var(--ouro-claro));}#cadernoPage .pasta:hover{transform:translateY(-4px); border-color:var(--roxo-400);}#cadernoPage .pasta .icone-pasta{font-size:1.9rem; margin-bottom:10px; display:block; filter:drop-shadow(0 0 8px rgba(212,175,55,.5));}#cadernoPage .pasta h3{font-size:1.02rem; font-weight:600; line-height:1.3; word-break:break-word;}#cadernoPage .pasta .meta{font-size:.78rem; color:var(--texto-fraco); margin-top:6px;}#cadernoPage .pasta .del-btn{position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%; border:none;
+  background:rgba(0,0,0,.25); color:#ffb3b3; font-size:.85rem; cursor:pointer; opacity:0; transition:opacity .15s; display:flex; align-items:center; justify-content:center;}#cadernoPage .pasta:hover .del-btn{opacity:1;}#cadernoPage .pasta .ed-btn{right:42px; color:var(--texto);}@media (hover:none){#cadernoPage .pasta .del-btn{opacity:1;}}#cadernoPage .vazio{text-align:center; padding:60px 20px; color:var(--texto-fraco);}#cadernoPage .vazio .emoji{font-size:2.4rem; display:block; margin-bottom:10px;}#cadernoPage .vazio strong{color:var(--texto); display:block; margin-bottom:4px; font-family:'Poppins';}#cadernoPage .lista-itens{display:flex; flex-direction:column; gap:14px;}#cadernoPage .item-card{background:var(--bg-card); border:1px solid var(--borda); border-radius:var(--raio); padding:16px 18px; box-shadow:var(--sombra); position:relative;}#cadernoPage .item-top{display:flex; align-items:center; gap:10px; margin-bottom:10px;}#cadernoPage .item-tag{font-size:.68rem; font-weight:700; letter-spacing:.4px; padding:4px 10px; border-radius:999px; font-family:'Poppins';}#cadernoPage .item-tag.texto, #cadernoPage .item-tag.link{background:rgba(157,78,221,.2); color:var(--roxo-200);}#cadernoPage .item-tag.foto{background:rgba(212,175,55,.2); color:var(--ouro-claro);}#cadernoPage .item-tag.audio{background:var(--verde-neon-dim); color:var(--verde-neon);}#cadernoPage .item-data{font-size:.75rem; color:var(--texto-fraco); margin-left:auto;}#cadernoPage .item-titulo{font-weight:600; margin-bottom:6px; font-family:'Poppins'; font-size:.98rem;}#cadernoPage .item-texto{white-space:pre-wrap; line-height:1.55; font-size:.94rem;}#cadernoPage .item-card img{max-width:100%; border-radius:var(--raio-sm); display:block; margin-top:6px; cursor:zoom-in;}#cadernoPage .item-card audio{width:100%; margin-top:6px;}#cadernoPage .item-card a.item-link{color:var(--verde-neon); text-decoration:none; font-weight:600; word-break:break-all;}#cadernoPage .item-card a.item-link:hover{text-decoration:underline;}#cadernoPage .item-acoes{position:absolute; top:14px; right:14px; display:flex; gap:10px;}#cadernoPage .item-btn{background:none; border:none; color:var(--texto-fraco); cursor:pointer; font-size:.95rem;}#cadernoPage .item-btn:hover{color:var(--verde-neon);}#cadernoPage .item-btn.del:hover{color:#ff6b6b;}#cadernoPage .nota-dot{display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%;
+  border:2px solid var(--borda); background:var(--bg-elevada); color:var(--texto); font-size:.72rem; font-weight:700;
+  font-family:'Poppins'; cursor:pointer; flex:none;}#cadernoPage .pasta .nota-dot{position:absolute; bottom:10px; right:10px; width:30px; height:30px;}#cadernoPage .nota-dot.verde{background:#1fcf58; color:#062b0f; border-color:#1fcf58;}#cadernoPage .nota-dot.laranja{background:#ff9f1c; color:#3a2000; border-color:#ff9f1c;}#cadernoPage .nota-dot.fixa{position:fixed; left:clamp(16px,4vw,40px); bottom:clamp(16px,4vw,40px); width:54px; height:54px; font-size:.95rem; z-index:40; box-shadow:var(--sombra);}#cadernoPage .nota-dot.vermelho{background:#ff6b6b; color:#3a0000; border-color:#ff6b6b;}#cadernoPage .revisao-grupo{margin-bottom:26px;}#cadernoPage .revisao-grupo h2{font-size:1.05rem; color:var(--ouro-claro); margin-bottom:10px; padding-bottom:6px; border-bottom:1px dashed var(--borda);}#cadernoPage .fab{position:fixed; right:clamp(16px,4vw,40px); bottom:clamp(16px,4vw,40px); display:flex; align-items:center; gap:10px;
+  background:linear-gradient(135deg,var(--verde-neon),#1fcf58); color:#062b0f; border:none; border-radius:999px;
+  padding:15px 22px 15px 18px; cursor:pointer; z-index:40; box-shadow:0 6px 24px rgba(57,255,106,.45), 0 0 0 3px rgba(57,255,106,.15);
+  font-family:'Poppins'; font-weight:700; font-size:.92rem; animation:pulso 2.6s ease-in-out infinite; transition:transform .15s;}#cadernoPage .fab:hover{transform:translateY(-3px) scale(1.03);}#cadernoPage .fab:active{transform:scale(.96);}#cadernoPage .fab-icone{width:26px; height:26px; border-radius:50%; background:#062b0f; color:var(--verde-neon); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800;}@keyframes pulso{0%,100%{box-shadow:0 6px 24px rgba(57,255,106,.45),0 0 0 0 rgba(57,255,106,.35);} 50%{box-shadow:0 6px 24px rgba(57,255,106,.55),0 0 0 10px rgba(57,255,106,0);}}#cadernoPage .overlay{position:fixed; inset:0; background:rgba(10,4,20,.65); backdrop-filter:blur(3px); display:none; align-items:flex-end; justify-content:center; z-index:100;}#cadernoPage .overlay.aberto{display:flex;}@media (min-width:640px){#cadernoPage .overlay{align-items:center; padding:20px;}}#cadernoPage .modal{background:var(--bg-elevada); width:100%; max-width:520px; border-radius:22px 22px 0 0; padding:24px 22px 26px;
+  border:1px solid var(--borda); box-shadow:0 -10px 40px rgba(0,0,0,.5); max-height:88vh; overflow-y:auto; animation:subir .22s ease;}@media (min-width:640px){#cadernoPage .modal{border-radius:22px;}}@keyframes subir{from{transform:translateY(24px); opacity:0;} to{transform:translateY(0); opacity:1;}}#cadernoPage .modal h2{font-size:1.2rem; margin-bottom:4px;}#cadernoPage .modal .sub{color:var(--texto-fraco); font-size:.85rem; margin-bottom:18px;}#cadernoPage .campo{margin-bottom:16px;}#cadernoPage .campo label{display:block; font-size:.82rem; font-weight:600; margin-bottom:6px; color:var(--texto-fraco);}#cadernoPage .campo input, #cadernoPage .campo textarea, #cadernoPage .campo select{width:100%; padding:11px 14px; border-radius:var(--raio-sm); border:1px solid var(--borda);
+  background:var(--bg); color:var(--texto); font-family:inherit; font-size:.94rem; outline:none;}#cadernoPage .campo input:focus, #cadernoPage .campo textarea:focus{border-color:var(--verde-neon);}#cadernoPage .campo textarea{min-height:120px; resize:vertical; line-height:1.5;}#cadernoPage .seletor-tipo{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}#cadernoPage .seletor-tipo button{display:flex; flex-direction:column; align-items:center; gap:5px; padding:12px 4px; border-radius:var(--raio-sm);
+  border:1.5px solid var(--borda); background:var(--bg); color:var(--texto-fraco); cursor:pointer; font-size:.72rem; font-weight:600;}#cadernoPage .seletor-tipo button span{font-size:1.3rem;}#cadernoPage .seletor-tipo button.ativo{border-color:var(--verde-neon); color:var(--verde-neon); background:var(--verde-neon-dim);}#cadernoPage .preview-mini{margin-top:10px; max-width:100%; border-radius:var(--raio-sm);}#cadernoPage .modal-acoes{display:flex; gap:10px; margin-top:20px;}#cadernoPage .btn{flex:1; padding:13px; border-radius:999px; border:none; font-family:'Poppins'; font-weight:600; font-size:.9rem; cursor:pointer; transition:opacity .15s;}#cadernoPage .btn:active{opacity:.8;}#cadernoPage .btn-primario{background:linear-gradient(135deg,var(--roxo-400),var(--roxo-800)); color:#fff; box-shadow:0 4px 18px rgba(123,44,191,.4);}#cadernoPage .btn-secundario{background:transparent; border:1px solid var(--borda); color:var(--texto);}#cadernoPage .fechar-modal{position:sticky; top:0; float:right; background:none; border:none; color:var(--texto-fraco); font-size:1.3rem; cursor:pointer;}#cadernoPage .selecao-destino{display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto;}#cadernoPage .selecao-destino button{text-align:left; padding:11px 14px; border-radius:var(--raio-sm); border:1px solid var(--borda);
+  background:var(--bg); color:var(--texto); cursor:pointer; font-size:.9rem;}#cadernoPage .toast{position:fixed; left:50%; bottom:110px; transform:translateX(-50%) translateY(20px); background:var(--bg-elevada);
+  border:1px solid var(--verde-neon); color:var(--texto); padding:12px 20px; border-radius:999px; font-size:.85rem; z-index:200;
+  opacity:0; pointer-events:none; transition:all .25s; box-shadow:0 6px 20px rgba(0,0,0,.4); max-width:88vw; text-align:center;}#cadernoPage .toast.mostrar{opacity:1; transform:translateX(-50%) translateY(0);}#cadernoPage .lightbox{position:fixed; inset:0; background:rgba(0,0,0,.88); display:none; align-items:center; justify-content:center; z-index:300; padding:20px; cursor:zoom-out;}#cadernoPage .lightbox.aberto{display:flex;}#cadernoPage .lightbox img{max-width:100%; max-height:100%; border-radius:8px;}#cadernoPage ::-webkit-scrollbar{width:8px;}#cadernoPage ::-webkit-scrollbar-thumb{background:var(--roxo-500); border-radius:8px;}#cadernoPage .resultado-busca{font-size:.82rem; color:var(--texto-fraco); margin-bottom:14px;}#cadernoPage mark{background:var(--verde-neon-dim); color:var(--verde-neon); padding:0 2px; border-radius:3px;}#cadernoPage .grav-status{display:none; align-items:center; gap:8px; margin-top:10px; color:var(--verde-neon); font-size:.85rem; font-weight:600;}#cadernoPage .grav-status.on{display:flex;}#cadernoPage .grav-ponto{width:10px; height:10px; border-radius:50%; background:var(--verde-neon); display:inline-block; animation:pulso 1s infinite;}
+
     </style>
 </head>
 <body>
+
     <div class="header">
         <h1>📚 Revisão - Concurso Banco Central</h1>
         <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
@@ -203,6 +260,7 @@
             </button>
         </div>
     </div>
+    <button class="caderno-fab" onclick="openCaderno()" title="Caderno de Revisão">📝</button>
 
     <div class="container">
         <div class="add-section">
@@ -277,6 +335,34 @@
             <button class="modal-close" onclick="saveEdit()">Salvar</button>
             <button class="modal-close" onclick="closeEditModal()" style="margin-top:.5rem;background:var(--gray-light)">Cancelar</button>
         </div>
+    </div>
+
+    <div class="caderno-page" id="cadernoPage">
+        <button class="caderno-fechar-btn" onclick="closeCaderno()" title="Voltar">←</button>
+<header>
+  <div class="brand">
+    <div class="brand-icone">🏆</div>
+    <div>Caderno de Revisão<small>rumo à aprovação</small></div>
+  </div>
+  <div class="busca-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="inputBusca" type="text" placeholder="Buscar em todo o caderno...">
+  </div>
+  <div class="topo-acoes">
+    <button class="icon-btn" id="btnExportar" title="Exportar backup (.json)">💾</button>
+    <button class="icon-btn" id="btnImportar" title="Importar backup (.json)">📂</button>
+    <input type="file" id="inputImportar" accept="application/json,.json" style="display:none">
+    <button class="icon-btn" id="btnMusica" title="Som de água relaxante">🎵</button>
+    <button class="icon-btn" id="btnTema" title="Alternar tema">🌙</button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<button class="fab" id="btnFab"><span class="fab-icone">+</span><span>Adicionar</span></button>
+<div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
     </div>
 
     <div class="flashcard-page" id="flashcardPage">
@@ -356,8 +442,8 @@
             </div>
         </div>
     </div>
-
     <script>
+
         const REVIEW_INTERVALS=[1,7,30,60,90];
         let subjects={},editingSubjectId=null,flashcards=[],currentCardIndex=0,correctCount=0,incorrectCount=0,
             cardRevealed=false,currentTheme='',creatingTheme='',cardsToCreate=0,cardsCreated=0,currentFilter='';
@@ -787,6 +873,406 @@
         }
 
         init();
+    
+
+        function openCaderno(){document.getElementById('cadernoPage').classList.add('active')}
+        function closeCaderno(){document.getElementById('cadernoPage').classList.remove('active')}
+
+    </script>
+    <script>
+
+(function(){
+"use strict";
+const CHAVE="caderno_concurseiro_v1", CHAVE_TEMA="caderno_concurseiro_tema";
+const ICONE={texto:'📝',foto:'🖼️',audio:'🎙️',link:'🔗'}, NOME={texto:'Texto',foto:'Foto',audio:'Áudio',link:'Link'};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const agora=()=>new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function destacar(texto,termo){
+  const esc=escapeHtml(texto);
+  if(!termo) return esc;
+  const re=new RegExp('('+termo.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return esc.replace(re,'<mark>$1</mark>');
+}
+
+let estado = (()=>{ try{ const d=JSON.parse(localStorage.getItem(CHAVE)); return (d&&Array.isArray(d.materias))?d:{materias:[]}; }catch(e){ return {materias:[]}; } })();
+function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(estado)); }catch(e){ mostrarToast('⚠️ Não foi possível salvar (armazenamento cheio?)'); } }
+const getMateria=id=>estado.materias.find(m=>m.id===id);
+const getConteudo=(m,id)=>m&&m.conteudos.find(c=>c.id===id);
+
+let rota={view:'home'};
+function nav(r){ rota=r; renderizar(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* Tema */
+function aplicarTema(t){ document.getElementById('cadernoPage').setAttribute('data-theme',t); document.getElementById('btnTema').textContent=t==='light'?'☀️':'🌙'; localStorage.setItem(CHAVE_TEMA,t); }
+aplicarTema(localStorage.getItem(CHAVE_TEMA) || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
+document.getElementById('btnTema').onclick=()=>aplicarTema(document.getElementById('cadernoPage').getAttribute('data-theme')==='light'?'dark':'light');
+
+/* Nota do conteúdo */
+function corNota(n){ return n==null?'':(n>=8?'verde':(n>6?'laranja':'vermelho')); }
+function textoNota(n){ return n==null?'+':(Number.isInteger(n)?n:n.toFixed(1)); }
+function editarNota(mid,cid){
+  const c=getConteudo(getMateria(mid),cid);
+  modalForm({titulo:'Nota da prova', sub:`${escapeHtml(c.nome)} — de 0 a 10 (vazio remove a nota)`, placeholder:'Ex.: 8,5', textoBtn:'Salvar nota', valor:c.nota??'', teclado:'decimal', vazioOk:true,
+    aoSalvar:val=>{
+      const n=parseFloat(val.replace(',','.'));
+      if(val!==''&&(isNaN(n)||n<0||n>10)){ mostrarToast('Digite um número de 0 a 10'); return; }
+      c.nota=val===''?null:n; salvar(); fecharOverlay(); renderizar();
+    }});
+}
+
+/* Som de água suave (gerado no navegador — sem arquivos, leve e offline) */
+let audioCtx=null, mestre=null, fontes=[], gotaTimer=null;
+function gota(){
+  const t=audioCtx.currentTime, o=audioCtx.createOscillator(), g=audioCtx.createGain(), f=500+Math.random()*900;
+  o.frequency.setValueAtTime(f,t); o.frequency.exponentialRampToValueAtTime(f*1.5,t+.09);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.008+Math.random()*.014,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+  o.connect(g); g.connect(mestre); o.start(t); o.stop(t+.25);
+  gotaTimer=setTimeout(gota,250+Math.random()*1100);
+}
+function iniciarMusica(){
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  audioCtx.resume();
+  const sr=audioCtx.sampleRate, buf=audioCtx.createBuffer(1,sr*3,sr), d=buf.getChannelData(0), t=audioCtx.currentTime;
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  mestre=audioCtx.createGain(); mestre.gain.setValueAtTime(0,t); mestre.gain.setTargetAtTime(.7,t,.8); mestre.connect(audioCtx.destination);
+  fontes=[[500,.7,.35,.13,180],[1100,.9,.22,.21,350],[2400,1.1,.08,.31,600]].flatMap(([f,q,ganho,lh,la])=>{
+    const s=audioCtx.createBufferSource(), fl=audioCtx.createBiquadFilter(), g=audioCtx.createGain(), l=audioCtx.createOscillator(), lg=audioCtx.createGain();
+    s.buffer=buf; s.loop=true; s.playbackRate.value=.8+Math.random()*.4;
+    fl.type='bandpass'; fl.frequency.value=f; fl.Q.value=q; g.gain.value=ganho;
+    l.frequency.value=lh; lg.gain.value=la; l.connect(lg); lg.connect(fl.frequency);
+    s.connect(fl); fl.connect(g); g.connect(mestre); s.start(); l.start();
+    return [s,l];
+  });
+  gota();
+}
+function pararMusica(){
+  clearTimeout(gotaTimer);
+  const m=mestre, f=fontes; fontes=[];
+  m.gain.setTargetAtTime(0,audioCtx.currentTime,.2);
+  setTimeout(()=>{ f.forEach(n=>n.stop()); m.disconnect(); },1200);
+}
+document.getElementById('btnMusica').onclick=()=>{
+  const ligar=!fontes.length;
+  document.getElementById('btnMusica').textContent=ligar?'🔊':'🎵';
+  ligar?iniciarMusica():pararMusica();
+};
+
+/* Toast */
+let toastTimer=null;
+function mostrarToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('mostrar'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('mostrar'),2400); }
+
+/* Backup (áudios não entram no arquivo exportado) */
+function exportarBackup(){
+  if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
+  const copia={ materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c, itens:c.itens.filter(i=>i.tipo!=='audio') })) })) };
+  const blob=new Blob([JSON.stringify(copia)],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=`caderno-revisao-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  mostrarToast('Backup baixado 💾 (áudios não são incluídos)');
+}
+function mesclarBackup(dados){
+  let nm=0,nc=0,ni=0;
+  dados.materias.forEach(mImp=>{
+    let mLocal=estado.materias.find(m=>m.nome.trim().toLowerCase()===String(mImp.nome||'').trim().toLowerCase());
+    if(!mLocal){ mLocal={id:uid(),nome:mImp.nome||'Sem nome',conteudos:[]}; estado.materias.push(mLocal); nm++; }
+    (mImp.conteudos||[]).forEach(cImp=>{
+      let cLocal=mLocal.conteudos.find(c=>c.nome.trim().toLowerCase()===String(cImp.nome||'').trim().toLowerCase());
+      if(!cLocal){ cLocal={id:uid(),nome:cImp.nome||'Sem nome',itens:[],nota:cImp.nota??null}; mLocal.conteudos.push(cLocal); nc++; }
+      (cImp.itens||[]).forEach(it=>{
+        if(!it||!it.tipo||it.tipo==='audio'||!it.conteudo) return;
+        cLocal.itens.push({id:uid(),tipo:it.tipo,titulo:it.titulo||'',conteudo:it.conteudo,data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
+        ni++;
+      });
+    });
+  });
+  return {nm,nc,ni};
+}
+document.getElementById('btnExportar').onclick=exportarBackup;
+document.getElementById('btnImportar').onclick=()=>document.getElementById('inputImportar').click();
+document.getElementById('inputImportar').onchange=e=>{
+  const file=e.target.files[0]; e.target.value='';
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const dados=JSON.parse(reader.result);
+      if(!dados||!Array.isArray(dados.materias)) throw new Error('formato inválido');
+      const r=mesclarBackup(dados); salvar(); renderizar();
+      mostrarToast(`Backup importado: +${r.nm} matéria(s), +${r.nc} conteúdo(s), +${r.ni} item(ns)`);
+    }catch(err){ mostrarToast('⚠️ Arquivo inválido — não foi possível importar'); }
+  };
+  reader.readAsText(file);
+};
+
+/* ===== Render ===== */
+function renderizar(){
+  const main=document.getElementById('main'), termo=document.getElementById('inputBusca').value.trim();
+  if(termo.length>=2){ main.innerHTML=renderBusca(termo); return; }
+  if(rota.view==='home') main.innerHTML=renderHome();
+  else if(rota.view==='materia'){ const m=getMateria(rota.mid); if(!m) return nav({view:'home'}); main.innerHTML=renderMateria(m); }
+  else if(rota.view==='conteudo'){ const m=getMateria(rota.mid), c=getConteudo(m,rota.cid); if(!m||!c) return nav({view:'home'}); main.innerHTML=renderConteudo(m,c); }
+  else if(rota.view==='revisao'){ const m=getMateria(rota.mid); if(!m) return nav({view:'home'}); main.innerHTML=renderRevisao(m); }
+}
+
+function renderHome(){
+  if(!estado.materias.length) return `<div class="cabecalho-secao"><div><h1>Suas matérias</h1><p>Organize tudo por matéria para revisar rápido no dia da prova.</p></div></div>
+    <div class="vazio"><span class="emoji">📚</span><strong>Nenhuma matéria ainda</strong>Toque em "Adicionar" para criar sua primeira matéria.</div>`;
+  const cards=estado.materias.map(m=>{
+    const nc=m.conteudos.length, ni=m.conteudos.reduce((a,c)=>a+c.itens.length,0);
+    return `<div class="pasta" data-ir="materia" data-mid="${m.id}">
+      <button class="del-btn ed-btn" data-ren="materia" data-mid="${m.id}" title="Renomear matéria">✏️</button>
+      <button class="del-btn" data-del="materia" data-mid="${m.id}" title="Excluir matéria">✕</button>
+      <span class="icone-pasta">📁</span><h3>${escapeHtml(m.nome)}</h3>
+      <div class="meta">${nc} conteúdo${nc!==1?'s':''} · ${ni} item${ni!==1?'s':''}</div></div>`;
+  }).join('');
+  return `<div class="cabecalho-secao"><div><h1>Suas matérias</h1><p>${estado.materias.length} matéria${estado.materias.length!==1?'s':''} no seu caderno</p></div></div>
+    <div class="grid-pastas">${cards}</div>`;
+}
+
+function renderMateria(m){
+  const bc=`<div class="breadcrumb"><button data-ir="home">📚 Matérias</button><span class="sep">/</span><span class="atual">${escapeHtml(m.nome)}</span></div>`;
+  if(!m.conteudos.length) return bc+`<div class="cabecalho-secao"><div><h1>${escapeHtml(m.nome)}</h1><p>Nenhum conteúdo cadastrado ainda.</p></div></div>
+    <div class="vazio"><span class="emoji">🗂️</span><strong>Pasta vazia</strong>Toque em "Adicionar" para criar o primeiro conteúdo desta matéria.</div>`;
+  const cards=m.conteudos.map(c=>{
+    const partes=['texto','foto','audio','link'].map(t=>{const n=c.itens.filter(i=>i.tipo===t).length; return n?`${ICONE[t]} ${n}`:'';}).filter(Boolean).join('  ')||'vazio';
+    return `<div class="pasta" data-ir="conteudo" data-mid="${m.id}" data-cid="${c.id}">
+      <button class="del-btn ed-btn" data-ren="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Renomear conteúdo">✏️</button>
+      <button class="del-btn" data-del="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Excluir conteúdo">✕</button>
+      <span class="icone-pasta">🗂️</span><h3>${escapeHtml(c.nome)}</h3><div class="meta">${partes}</div>
+      <button class="nota-dot ${corNota(c.nota)}" data-nota="1" data-mid="${m.id}" data-cid="${c.id}" title="Definir nota">${textoNota(c.nota)}</button></div>`;
+  }).join('');
+  return bc+`<div class="cabecalho-secao"><div><h1>${escapeHtml(m.nome)}</h1><p>${m.conteudos.length} conteúdo${m.conteudos.length!==1?'s':''} cadastrado${m.conteudos.length!==1?'s':''}</p></div>
+    <button class="btn-revisao" data-ir="revisao" data-mid="${m.id}">⚡ Modo revisão rápida</button></div>
+    <div class="grid-pastas">${cards}</div>`;
+}
+
+function renderItem(item,mid,cid,termo){
+  let corpo='';
+  if(item.tipo==='texto') corpo=`<div class="item-texto">${destacar(item.conteudo,termo)}</div>`;
+  else if(item.tipo==='foto') corpo=`<img src="${item.conteudo}" alt="${escapeHtml(item.titulo||'foto')}" data-zoom>`;
+  else if(item.tipo==='audio') corpo=`<audio controls src="${item.conteudo}"></audio>`;
+  else if(item.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(item.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.conteudo)}</a>`;
+  return `<div class="item-card">
+    <div class="item-acoes">
+      <button class="item-btn" data-editar="1" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Editar item">✏️</button>
+      <button class="item-btn del" data-del="item" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Excluir item">✕</button>
+    </div>
+    <div class="item-top"><span class="item-tag ${item.tipo}">${ICONE[item.tipo]} ${NOME[item.tipo]}</span><span class="item-data">${item.data}</span></div>
+    ${item.titulo?`<div class="item-titulo">${destacar(item.titulo,termo)}</div>`:''}${corpo}</div>`;
+}
+
+function renderConteudo(m,c){
+  const bc=`<div class="breadcrumb"><button data-ir="home">📚 Matérias</button><span class="sep">/</span>
+    <button data-ir="materia" data-mid="${m.id}">${escapeHtml(m.nome)}</button><span class="sep">/</span><span class="atual">${escapeHtml(c.nome)}</span></div>`;
+  const n=c.itens.length;
+  const cab=`<div class="cabecalho-secao"><div><h1>${escapeHtml(c.nome)}</h1><p>${n?`${n} item${n!==1?'s':''}`:'Nenhum item ainda.'}</p></div></div>
+    <button class="nota-dot fixa ${corNota(c.nota)}" data-nota="1" data-mid="${m.id}" data-cid="${c.id}" title="Sua nota da prova — toque para alterar">${textoNota(c.nota)}</button>`;
+  if(!n) return bc+cab+`<div class="vazio"><span class="emoji">✍️</span><strong>Comece a anotar</strong>Adicione texto, foto, áudio ou link com o botão "Adicionar".</div>`;
+  return bc+cab+`<div class="lista-itens">${[...c.itens].sort((a,b)=>b.criadoEm-a.criadoEm).map(i=>renderItem(i,m.id,c.id)).join('')}</div>`;
+}
+
+function renderRevisao(m){
+  const bc=`<div class="breadcrumb"><button data-ir="home">📚 Matérias</button><span class="sep">/</span>
+    <button data-ir="materia" data-mid="${m.id}">${escapeHtml(m.nome)}</button><span class="sep">/</span><span class="atual">Revisão rápida</span></div>`;
+  const grupos=m.conteudos.filter(c=>c.itens.length);
+  if(!grupos.length) return bc+`<div class="vazio"><span class="emoji">⚡</span><strong>Nada para revisar ainda</strong>Adicione conteúdos e itens primeiro.</div>`;
+  const html=grupos.map(c=>`<div class="revisao-grupo"><h2>🗂️ ${escapeHtml(c.nome)}</h2><div class="lista-itens">${[...c.itens].sort((a,b)=>a.criadoEm-b.criadoEm).map(i=>renderItem(i,m.id,c.id)).join('')}</div></div>`).join('');
+  return bc+`<div class="cabecalho-secao"><div><h1>⚡ Revisão rápida — ${escapeHtml(m.nome)}</h1><p>Tudo desta matéria, em ordem, para revisar sem clicar em cada pasta.</p></div></div>${html}`;
+}
+
+function renderBusca(termo){
+  const tl=termo.toLowerCase(), out=[];
+  estado.materias.forEach(m=>m.conteudos.forEach(c=>{
+    const bate=m.nome.toLowerCase().includes(tl)||c.nome.toLowerCase().includes(tl);
+    c.itens.forEach(item=>{
+      const alvo=(item.titulo||'')+' '+((item.tipo==='texto'||item.tipo==='link')?item.conteudo:'');
+      if(bate||alvo.toLowerCase().includes(tl)) out.push({m,c,item});
+    });
+    if(bate&&!c.itens.length) out.push({m,c,item:null});
+  }));
+  if(!out.length) return `<div class="resultado-busca">Buscando por "${escapeHtml(termo)}"</div><div class="vazio"><span class="emoji">🔎</span><strong>Nada encontrado</strong>Tente outro termo, matéria ou conteúdo.</div>`;
+  const html=out.map(r=>`<div style="margin-bottom:8px;"><div style="font-size:.78rem;color:var(--texto-fraco);margin-bottom:6px;">📁 ${destacar(r.m.nome,termo)} <span class="sep">/</span> 🗂️ ${destacar(r.c.nome,termo)}</div>
+    ${r.item?renderItem(r.item,r.m.id,r.c.id,termo):'<div class="item-texto" style="color:var(--texto-fraco)">Pasta vazia</div>'}</div>`).join('');
+  return `<div class="resultado-busca">${out.length} resultado${out.length!==1?'s':''} para "${escapeHtml(termo)}"</div><div class="lista-itens">${html}</div>`;
+}
+
+let buscaDebounce=null;
+document.getElementById('inputBusca').addEventListener('input',()=>{ clearTimeout(buscaDebounce); buscaDebounce=setTimeout(renderizar,180); });
+
+/* ===== Delegação de eventos (navegar, excluir, ampliar foto) ===== */
+document.getElementById('main').addEventListener('click', e=>{
+  const del=e.target.closest('[data-del]');
+  if(del){
+    const {del:tipo,mid,cid,iid}=del.dataset;
+    if(tipo==='materia'){ const m=getMateria(mid); if(confirm(`Excluir a matéria "${m.nome}" e tudo dentro dela? Essa ação não pode ser desfeita.`)){ estado.materias=estado.materias.filter(x=>x.id!==mid); salvar(); renderizar(); mostrarToast('Matéria excluída'); } }
+    else if(tipo==='conteudo'){ const m=getMateria(mid), c=getConteudo(m,cid); if(confirm(`Excluir o conteúdo "${c.nome}"?`)){ m.conteudos=m.conteudos.filter(x=>x.id!==cid); salvar(); renderizar(); mostrarToast('Conteúdo excluído'); } }
+    else if(tipo==='item'){ if(confirm('Excluir este item?')){ const m=getMateria(mid), c=getConteudo(m,cid); c.itens=c.itens.filter(x=>x.id!==iid); salvar(); renderizar(); mostrarToast('Item excluído'); } }
+    return;
+  }
+  const ren=e.target.closest('[data-ren]');
+  if(ren){ const {ren:tipo,mid,cid}=ren.dataset, o=tipo==='materia'?getMateria(mid):getConteudo(getMateria(mid),cid);
+    modalForm({titulo:'Renomear', sub:'Digite o novo nome', placeholder:'Nome', textoBtn:'Salvar', valor:o.nome,
+      aoSalvar:v=>{ o.nome=v; salvar(); fecharOverlay(); renderizar(); mostrarToast('Nome alterado ✅'); }}); return; }
+  const editar=e.target.closest('[data-editar]');
+  if(editar){ const {mid,cid,iid}=editar.dataset; const m=getMateria(mid), c=getConteudo(m,cid), item=c.itens.find(i=>i.id===iid); abrirModalItem(mid,cid,item); return; }
+  const nota=e.target.closest('[data-nota]');
+  if(nota){ editarNota(nota.dataset.mid, nota.dataset.cid); return; }
+  const ir=e.target.closest('[data-ir]');
+  if(ir){ const {ir:view,mid,cid}=ir.dataset; nav({view,mid,cid}); return; }
+  const img=e.target.closest('img[data-zoom]');
+  if(img){ document.getElementById('lightboxImg').src=img.src; document.getElementById('lightbox').classList.add('aberto'); }
+});
+document.getElementById('lightbox').addEventListener('click', function(){ this.classList.remove('aberto'); document.getElementById('lightboxImg').src=''; });
+
+/* ===== Modais ===== */
+const overlay=document.getElementById('overlay'), modal=document.getElementById('modal');
+const abrirOverlay=()=>overlay.classList.add('aberto');
+const fecharOverlay=()=>{ overlay.classList.remove('aberto'); modal.innerHTML=''; };
+overlay.addEventListener('click', e=>{ if(e.target===overlay) fecharOverlay(); });
+document.getElementById('btnFab').onclick=()=>{
+  if(rota.view==='conteudo') abrirModalItem(rota.mid,rota.cid);
+  else if(rota.view==='materia') abrirModalEscolherAcao(rota.mid);
+  else abrirModalEscolherAcao(null);
+};
+
+function modalForm({titulo,sub,placeholder,textoBtn,aoSalvar,valor='',teclado='text',vazioOk=false}){
+  modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${titulo}</h2><div class="sub">${sub}</div>
+    <div class="campo"><input type="text" id="campoModalInput" placeholder="${placeholder}" maxlength="80" value="${escapeHtml(valor)}" inputmode="${teclado}"></div>
+    <div class="modal-acoes"><button class="btn btn-secundario" data-fechar>Cancelar</button><button class="btn btn-primario" id="btnModalSalvar">${textoBtn}</button></div>`;
+  abrirOverlay();
+  modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+  const input=document.getElementById('campoModalInput'); input.focus(); input.select();
+  const salvarAcao=()=>{ const v=input.value.trim(); if(!v&&!vazioOk){ input.focus(); return; } aoSalvar(v); };
+  document.getElementById('btnModalSalvar').onclick=salvarAcao;
+  input.onkeydown=e=>{ if(e.key==='Enter') salvarAcao(); };
+}
+
+function abrirModalEscolherAcao(materiaId){
+  const opcoes = materiaId
+    ? `<button class="btn btn-primario" data-acao="novo-conteudo">🗂️ Novo conteúdo</button>`
+    : `<button class="btn btn-primario" data-acao="nova-materia">📁 Nova matéria</button>${estado.materias.length?`<button class="btn btn-secundario" data-acao="escolher-materia">🗂️ Novo conteúdo em matéria existente</button>`:''}`;
+  modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>O que deseja adicionar?</h2><div class="sub">${materiaId?'Nesta matéria':'Escolha por onde começar'}</div>
+    <div class="modal-acoes" style="flex-direction:column;">${opcoes}</div>`;
+  abrirOverlay();
+  modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+  modal.querySelector('[data-acao="nova-materia"]')?.addEventListener('click', abrirModalNovaMateria);
+  modal.querySelector('[data-acao="novo-conteudo"]')?.addEventListener('click', ()=>abrirModalNovoConteudo(materiaId));
+  modal.querySelector('[data-acao="escolher-materia"]')?.addEventListener('click', abrirModalEscolherMateria);
+}
+
+function abrirModalEscolherMateria(){
+  const lista=estado.materias.map(m=>`<button data-mid="${m.id}">📁 ${escapeHtml(m.nome)}</button>`).join('');
+  modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>Em qual matéria?</h2><div class="sub">Escolha a matéria para este conteúdo</div>
+    <div class="selecao-destino">${lista}</div><div class="modal-acoes"><button class="btn btn-secundario" data-fechar>Cancelar</button></div>`;
+  abrirOverlay();
+  modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+  modal.querySelectorAll('[data-mid]').forEach(b=>b.addEventListener('click', ()=>abrirModalNovoConteudo(b.dataset.mid)));
+}
+
+function abrirModalNovaMateria(){
+  modalForm({titulo:'Nova matéria', sub:'Ex.: Direito Constitucional, Raciocínio Lógico...', placeholder:'Nome da matéria', textoBtn:'Criar matéria',
+    aoSalvar:nome=>{ const nova={id:uid(),nome,conteudos:[]}; estado.materias.push(nova); salvar(); fecharOverlay(); nav({view:'materia',mid:nova.id}); mostrarToast('Matéria criada 🎉'); }});
+}
+function abrirModalNovoConteudo(materiaId){
+  const materia=getMateria(materiaId);
+  modalForm({titulo:'Novo conteúdo', sub:`Dentro de "${escapeHtml(materia.nome)}"`, placeholder:'Nome do conteúdo', textoBtn:'Criar conteúdo',
+    aoSalvar:nome=>{ const novo={id:uid(),nome,itens:[]}; materia.conteudos.push(novo); salvar(); fecharOverlay(); nav({view:'conteudo',mid:materia.id,cid:novo.id}); mostrarToast('Conteúdo criado 🎉'); }});
+}
+
+function abrirModalItem(materiaId,conteudoId,itemEditar){
+  const materia=getMateria(materiaId), conteudo=getConteudo(materia,conteudoId);
+  const editando=!!itemEditar;
+  let tipoAtual=editando?itemEditar.tipo:'texto';
+  const seletor=`<div class="campo"><label>Tipo de conteúdo</label><div class="seletor-tipo">${Object.keys(ICONE).map(t=>`<button data-tipo="${t}"${t===tipoAtual?' class="ativo"':''}><span>${ICONE[t]}</span>${NOME[t]}</button>`).join('')}</div></div>`;
+  modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${editando?'Editar item':'Adicionar item'}</h2><div class="sub">Em "${escapeHtml(materia.nome)} / ${escapeHtml(conteudo.nome)}"</div>
+    ${seletor}
+    <div class="campo"><label>Título (opcional)</label><input type="text" id="campoTitulo" placeholder="Ex.: Resumo do artigo 5º" maxlength="100" value="${escapeHtml(itemEditar?.titulo||'')}"></div>
+    <div id="corpoDinamico"></div>
+    <div class="modal-acoes"><button class="btn btn-secundario" data-fechar>Cancelar</button><button class="btn btn-primario" id="salvarItem">${editando?'Salvar alterações':'Salvar item'}</button></div>`;
+  abrirOverlay();
+  modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+
+  function renderCorpo(tipo){
+    const div=document.getElementById('corpoDinamico');
+    const atual = editando && itemEditar.tipo===tipo ? itemEditar.conteudo : null;
+    if(tipo==='texto'){
+      div.innerHTML=`<div class="campo"><label>Sua anotação</label><textarea id="campoTexto" placeholder="Escreva aqui o conteúdo que você quer revisar...">${escapeHtml(atual||'')}</textarea></div>`;
+    } else if(tipo==='link'){
+      div.innerHTML=`<div class="campo"><label>URL</label><input type="url" id="campoLink" placeholder="https://..." value="${escapeHtml(atual||'')}"></div>`;
+    } else if(tipo==='foto'){
+      div.innerHTML=`<div class="campo"><label>Foto</label><div style="display:flex;gap:8px;">
+        <button type="button" class="btn btn-secundario" id="btnCamera" style="flex:1;">📷 Tirar foto</button>
+        <button type="button" class="btn btn-secundario" id="btnGaleria" style="flex:1;">🖼️ Galeria</button></div>
+        <input type="file" id="campoFoto" accept="image/*" style="display:none">
+        <img id="previewFoto" class="preview-mini" style="display:none"></div>`;
+      const inputFoto=document.getElementById('campoFoto');
+      const lerFoto=file=>{ if(!file) return; const r=new FileReader(); r.onload=()=>{ const img=document.getElementById('previewFoto'); img.src=r.result; img.style.display='block'; }; r.readAsDataURL(file); };
+      document.getElementById('btnCamera').onclick=()=>{ inputFoto.setAttribute('capture','environment'); inputFoto.click(); };
+      document.getElementById('btnGaleria').onclick=()=>{ inputFoto.removeAttribute('capture'); inputFoto.click(); };
+      inputFoto.onchange=e=>lerFoto(e.target.files[0]);
+    } else if(tipo==='audio'){
+      div.innerHTML=`<div class="campo"><label>Áudio</label><div style="display:flex;gap:8px;">
+        <button type="button" class="btn btn-secundario" id="btnGravar" style="flex:1;">🎤 Gravar</button>
+        <button type="button" class="btn btn-secundario" id="btnEnviarAudio" style="flex:1;">📎 Enviar arquivo</button></div>
+        <input type="file" id="campoAudio" accept="audio/*" style="display:none">
+        <div class="grav-status" id="statusGravacao"><span class="grav-ponto"></span><span id="tempoGravacao">Gravando... 0s</span>
+          <button type="button" class="btn btn-primario" id="btnPararGravar" style="flex:none;padding:8px 16px;font-size:.8rem;">Parar</button></div>
+        <audio id="previewAudio" controls style="display:none;width:100%;margin-top:10px;"></audio>
+        <div class="sub" style="margin:8px 0 0;">O áudio não é incluído no backup exportado (arquivos ficam grandes) — ele fica salvo só neste navegador.</div></div>`;
+      document.getElementById('btnEnviarAudio').onclick=()=>document.getElementById('campoAudio').click();
+      document.getElementById('campoAudio').onchange=e=>{
+        const file=e.target.files[0]; if(!file) return;
+        const r=new FileReader(); r.onload=()=>{ const a=document.getElementById('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(file);
+      };
+      let rec=null, chunks=[], stream=null, cron=null, seg=0;
+      document.getElementById('btnGravar').onclick=async ()=>{
+        if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){ mostrarToast('⚠️ Este navegador não permite gravar áudio aqui — envie um arquivo'); return; }
+        try{ stream=await navigator.mediaDevices.getUserMedia({audio:true}); }catch(err){ mostrarToast('⚠️ Permissão de microfone negada'); return; }
+        chunks=[]; rec=new MediaRecorder(stream);
+        rec.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+        rec.onstop=()=>{
+          const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
+          const r=new FileReader(); r.onload=()=>{ const a=document.getElementById('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(blob);
+          stream.getTracks().forEach(t=>t.stop());
+        };
+        rec.start(); seg=0;
+        document.getElementById('statusGravacao').classList.add('on');
+        document.getElementById('tempoGravacao').textContent='Gravando... 0s';
+        cron=setInterval(()=>{ seg++; document.getElementById('tempoGravacao').textContent=`Gravando... ${seg}s`; },1000);
+      };
+      document.getElementById('btnPararGravar').onclick=()=>{
+        if(rec&&rec.state!=='inactive') rec.stop();
+        clearInterval(cron);
+        document.getElementById('statusGravacao').classList.remove('on');
+      };
+    }
+    const pv=document.getElementById(tipo==='foto'?'previewFoto':'previewAudio');
+    if(atual&&pv){ pv.src=atual; pv.style.display='block'; }
+  }
+  renderCorpo(tipoAtual);
+  modal.querySelectorAll('.seletor-tipo button').forEach(btn=>{
+    btn.onclick=()=>{ modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.remove('ativo')); btn.classList.add('ativo'); tipoAtual=btn.dataset.tipo; renderCorpo(tipoAtual); };
+  });
+
+  document.getElementById('salvarItem').onclick=()=>{
+    const titulo=document.getElementById('campoTitulo').value.trim();
+    let valor=null;
+    if(tipoAtual==='texto'){ valor=document.getElementById('campoTexto').value.trim(); if(!valor){ mostrarToast('Escreva algo antes de salvar'); return; } }
+    else if(tipoAtual==='link'){ valor=document.getElementById('campoLink').value.trim(); if(!valor){ mostrarToast('Cole um link antes de salvar'); return; } if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
+    else if(tipoAtual==='foto'){ const img=document.getElementById('previewFoto'); if(img.style.display==='none'){ mostrarToast('Escolha ou tire uma foto antes de salvar'); return; } valor=img.src; }
+    else if(tipoAtual==='audio'){ const a=document.getElementById('previewAudio'); if(a.style.display==='none'){ mostrarToast('Grave ou envie um áudio antes de salvar'); return; } valor=a.src; }
+    if(editando) Object.assign(itemEditar,{tipo:tipoAtual,titulo,conteudo:valor});
+    else conteudo.itens.push({id:uid(),tipo:tipoAtual,titulo,conteudo:valor,data:agora(),criadoEm:Date.now()});
+    salvar(); fecharOverlay(); renderizar(); mostrarToast(editando?'Item atualizado ✅':'Item adicionado ✅');
+  };
+}
+
+renderizar();
+})();
+
     </script>
 </body>
 </html>
