@@ -19,7 +19,7 @@
             --bg-primary:#0f1419;--bg-secondary:#1a1f26;--text-primary:#e1e8ed;--text-secondary:#8899a6;
             --border-color:#2f3640;--accent:#1565c0;--accent-light:#1976d2;--accent-lighter:#42a5f5;
             --gray-primary:#78909c;--gray-light:#546e7a;--gray-lighter:#263238;--success:#388e3c;
-            --warning:#fb8c00;--danger:#d32f2f;--shadow:rgba(0,0,0,0.4);--card-border:#37474f;
+            --warning:#fb8c00;--danger:#d32f2f;--shadow:rgba(0,0,0,.4);--card-border:#37474f;
         }
         body{
             font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
@@ -285,6 +285,14 @@
         #cad .grav-status{display:none;align-items:center;gap:8px;margin-top:10px;color:var(--verde-neon);font-size:.85rem;font-weight:600}
         #cad .grav-status.on{display:flex}
         #cad .grav-ponto{width:10px;height:10px;border-radius:50%;background:var(--verde-neon);display:inline-block;animation:pulso 1s infinite}
+        #cad .item-carrossel{position:relative}
+        #cad .car-seta{position:absolute;top:10px;width:30px;height:30px;border-radius:50%;
+            border:none;background:rgba(0,0,0,.2);color:#fff;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .15s}
+        #cad .car-seta:hover{background:rgba(0,0,0,.4)}
+        #cad .car-seta.esq{left:6px}
+        #cad .car-seta.dir{right:6px}
+        #cad .car-contador{position:absolute;top:10px;right:44px;background:rgba(0,0,0,.2);color:#fff;font-size:.7rem;
+            padding:2px 8px;border-radius:999px;z-index:5}
 
         .flashcard-page{display:none;position:fixed;top:0;left:0;width:100%;height:100vh;
             background:linear-gradient(135deg,var(--bg-secondary)0%,var(--gray-lighter)100%);
@@ -815,8 +823,30 @@
           return esc.replace(re,'<mark>$1</mark>');
         }
 
-        let estado = (()=>{ try{ const d=JSON.parse(localStorage.getItem(CHAVE)); return (d&&Array.isArray(d.materias))?d:{materias:[]}; }catch(e){ return {materias:[]}; } })();
-        function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(estado)); }catch(e){ mostrarToast('⚠️ Não foi possível salvar (armazenamento cheio?)'); } }
+        /* Cada item pode ter VÁRIOS blocos (textos, fotos, áudios, links) — sem limite.
+           Itens antigos (com um único tipo/conteudo) continuam funcionando: viram 1 bloco automaticamente. */
+        const getBlocos=item=>Array.isArray(item.blocos)?item.blocos:(item.tipo?[{tipo:item.tipo,conteudo:item.conteudo,descricao:item.descricao||''}]:[]);
+        let carrosselIndices={};
+
+        /* Persistência: carrega do IndexedDB ANTES de mostrar ou salvar qualquer coisa */
+        let estado={materias:[]}, migrar=false, falha=false;
+        const valido=d=>d&&Array.isArray(d.materias)?d:null;
+        const bd=new Promise(res=>{ try{ const r=indexedDB.open('caderno_db',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=r.onblocked=()=>res(null); }catch(e){ res(null); } });
+        const pronto=bd.then(db=>new Promise(res=>{
+          let ls=null; try{ ls=valido(JSON.parse(localStorage.getItem(CHAVE))); }catch(e){}
+          if(!db){ if(ls) estado=ls; return res(); }
+          try{
+            const q=db.transaction('kv').objectStore('kv').get(CHAVE);
+            q.onsuccess=()=>{ const d=valido(q.result); if(d) estado=d; else if(ls){ estado=ls; migrar=true; } res(); };
+            q.onerror=()=>{ falha=true; if(ls) estado=ls; res(); };
+          }catch(e){ falha=true; if(ls) estado=ls; res(); }
+        }));
+        function salvar(){
+          pronto.then(()=>bd).then(db=>{ if(!db||falha) throw 0; const t=db.transaction('kv','readwrite'); t.objectStore('kv').put(estado,CHAVE); t.onabort=()=>mostrarToast('⚠️ Não foi possível salvar (armazenamento cheio?)'); })
+            .catch(()=>{ try{ localStorage.setItem(CHAVE, JSON.stringify(estado)); }catch(e){ mostrarToast('⚠️ Não foi possível salvar (armazenamento cheio?)'); } });
+        }
+        navigator.storage?.persist?.();
+        pronto.then(()=>{ if(migrar) salvar(); });
         const getMateria=id=>estado.materias.find(m=>m.id===id);
         const getConteudo=(m,id)=>m&&m.conteudos.find(c=>c.id===id);
 
@@ -885,7 +915,10 @@
         /* Backup (áudios não entram no arquivo exportado) */
         function exportarBackup(){
           if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
-          const copia={ materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c, itens:c.itens.filter(i=>i.tipo!=='audio') })) })) };
+          const copia={ materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c,
+            itens:c.itens
+              .map(i=>({ id:i.id, titulo:i.titulo||'', blocos:getBlocos(i).filter(b=>b.tipo!=='audio'), data:i.data, criadoEm:i.criadoEm }))
+              .filter(i=>i.blocos.length) })) })) };
           const blob=new Blob([JSON.stringify(copia)],{type:'application/json'});
           const url=URL.createObjectURL(blob), a=document.createElement('a');
           a.href=url; a.download=`caderno-revisao-backup-${new Date().toISOString().slice(0,10)}.json`;
@@ -902,8 +935,10 @@
               let cLocal=mLocal.conteudos.find(c=>c.nome.trim().toLowerCase()===String(cImp.nome||'').trim().toLowerCase());
               if(!cLocal){ cLocal={id:uid(),nome:cImp.nome||'Sem nome',itens:[],nota:cImp.nota??null}; mLocal.conteudos.push(cLocal); nc++; }
               (cImp.itens||[]).forEach(it=>{
-                if(!it||!it.tipo||it.tipo==='audio'||!it.conteudo) return;
-                cLocal.itens.push({id:uid(),tipo:it.tipo,titulo:it.titulo||'',conteudo:it.conteudo,data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
+                if(!it) return;
+                const bl=getBlocos(it).filter(b=>b&&b.tipo&&b.tipo!=='audio'&&b.conteudo);
+                if(!bl.length) return;
+                cLocal.itens.push({id:uid(),titulo:it.titulo||'',blocos:bl.map(b=>({tipo:b.tipo,conteudo:b.conteudo,descricao:b.descricao||''})),data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
                 ni++;
               });
             });
@@ -957,7 +992,7 @@
           if(!m.conteudos.length) return bc+`<div class="cabecalho-secao"><div><h1>${escapeHtml(m.nome)}</h1><p>Nenhum conteúdo cadastrado ainda.</p></div></div>
             <div class="vazio"><span class="emoji">🗂️</span><strong>Pasta vazia</strong>Toque em "Adicionar" para criar o primeiro conteúdo desta matéria.</div>`;
           const cards=m.conteudos.map(c=>{
-            const partes=['texto','foto','audio','link'].map(t=>{const n=c.itens.filter(i=>i.tipo===t).length; return n?`${ICONE[t]} ${n}`:'';}).filter(Boolean).join('  ')||'vazio';
+            const partes=['texto','foto','audio','link'].map(t=>{const n=c.itens.reduce((a,i)=>a+getBlocos(i).filter(b=>b.tipo===t).length,0); return n?`${ICONE[t]} ${n}`:'';}).filter(Boolean).join('  ')||'vazio';
             return `<div class="pasta" data-ir="conteudo" data-mid="${m.id}" data-cid="${c.id}">
               <button class="del-btn ed-btn" data-ren="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Renomear conteúdo">✏️</button>
               <button class="del-btn" data-del="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Excluir conteúdo">✕</button>
@@ -969,18 +1004,39 @@
             <div class="grid-pastas">${cards}</div>`;
         }
 
-        function renderItem(item,mid,cid,termo){
+        function renderBloco(b,titulo,termo,primeiro){
           let corpo='';
-          if(item.tipo==='texto') corpo=`<div class="item-texto">${destacar(item.conteudo,termo)}</div>`;
-          else if(item.tipo==='foto') corpo=`<img src="${item.conteudo}" alt="${escapeHtml(item.titulo||'foto')}" data-zoom>`;
-          else if(item.tipo==='audio') corpo=`<audio controls src="${item.conteudo}"></audio>`;
-          else if(item.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(item.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.conteudo)}</a>`;
+          if(b.tipo==='texto') corpo=`<div class="item-texto">${destacar(b.conteudo,termo)}</div>`;
+          else if(b.tipo==='foto') corpo=`<img src="${b.conteudo}" alt="${escapeHtml(titulo||'foto')}" data-zoom>`;
+          else if(b.tipo==='audio') corpo=`<audio controls src="${b.conteudo}"></audio>`;
+          else if(b.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(b.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(b.conteudo)}</a>`;
+          return `<div${primeiro?'':' style="margin-top:12px"'}>${corpo}${b.descricao?`<div class="item-texto" style="margin-top:8px">${destacar(b.descricao,termo)}</div>`:''}</div>`;
+        }
+
+        function renderCarrosselSlide(item,termo,idx){
+          const blocos=getBlocos(item);
+          return renderBloco(blocos[idx],item.titulo,termo,true);
+        }
+        function renderCarrossel(item,mid,cid,termo){
+          const blocos=getBlocos(item);
+          const idx=((carrosselIndices[item.id]||0)%blocos.length+blocos.length)%blocos.length;
+          return `<div class="item-carrossel" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}">
+            <button class="car-seta esq" data-car-prev="1" title="Anterior">◀</button>
+            <button class="car-seta dir" data-car-next="1" title="Próximo">▶</button>
+            <span class="car-contador">${idx+1}/${blocos.length}</span>
+            <div class="car-slide">${renderCarrosselSlide(item,termo,idx)}</div>
+          </div>`;
+        }
+        function renderItem(item,mid,cid,termo){
+          const blocos=getBlocos(item);
+          const tipos=[...new Set(blocos.map(b=>b.tipo))];
+          const corpo=blocos.length>1?renderCarrossel(item,mid,cid,termo):blocos.map((b,i)=>renderBloco(b,item.titulo,termo,i===0)).join('');
           return `<div class="item-card">
             <div class="item-acoes">
               <button class="item-btn" data-editar="1" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Editar item">✏️</button>
               <button class="item-btn del" data-del="item" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Excluir item">✕</button>
             </div>
-            <div class="item-top"><span class="item-tag ${item.tipo}">${ICONE[item.tipo]} ${NOME[item.tipo]}</span><span class="item-data">${item.data}</span></div>
+            <div class="item-top">${tipos.map(t=>`<span class="item-tag ${t}">${ICONE[t]} ${NOME[t]}</span>`).join('')}<span class="item-data">${item.data}</span></div>
             ${item.titulo?`<div class="item-titulo">${destacar(item.titulo,termo)}</div>`:''}${corpo}</div>`;
         }
 
@@ -1008,7 +1064,7 @@
           estado.materias.forEach(m=>m.conteudos.forEach(c=>{
             const bate=m.nome.toLowerCase().includes(tl)||c.nome.toLowerCase().includes(tl);
             c.itens.forEach(item=>{
-              const alvo=(item.titulo||'')+' '+((item.tipo==='texto'||item.tipo==='link')?item.conteudo:'');
+              const alvo=(item.titulo||'')+' '+getBlocos(item).map(b=>(b.descricao||'')+' '+((b.tipo==='texto'||b.tipo==='link')?b.conteudo:'')).join(' ');
               if(bate||alvo.toLowerCase().includes(tl)) out.push({m,c,item});
             });
             if(bate&&!c.itens.length) out.push({m,c,item:null});
@@ -1024,6 +1080,17 @@
 
         /* ===== Delegação de eventos (navegar, excluir, ampliar foto) ===== */
         document.getElementById('main').addEventListener('click', e=>{
+          const carBtn=e.target.closest('[data-car-prev],[data-car-next]');
+          if(carBtn){
+            const wrap=carBtn.closest('.item-carrossel'), {mid,cid,iid}=wrap.dataset;
+            const item=getConteudo(getMateria(mid),cid).itens.find(i=>i.id===iid);
+            const blocos=getBlocos(item), dir=carBtn.hasAttribute('data-car-next')?1:-1;
+            const novo=(((carrosselIndices[iid]||0)+dir)%blocos.length+blocos.length)%blocos.length;
+            carrosselIndices[iid]=novo;
+            wrap.querySelector('.car-contador').textContent=`${novo+1}/${blocos.length}`;
+            wrap.querySelector('.car-slide').innerHTML=renderCarrosselSlide(item,'',novo);
+            return;
+          }
           const del=e.target.closest('[data-del]');
           if(del){
             const {del:tipo,mid,cid,iid}=del.dataset;
@@ -1105,19 +1172,43 @@
         function abrirModalItem(materiaId,conteudoId,itemEditar){
           const materia=getMateria(materiaId), conteudo=getConteudo(materia,conteudoId);
           const editando=!!itemEditar;
-          let tipoAtual=editando?itemEditar.tipo:'texto';
+          let tipoAtual='texto';
+          /* blocos já adicionados a este item (sem limite) */
+          let blocos=editando?getBlocos(itemEditar).map(b=>({...b})):[];
+          const MSG_VAZIO={texto:'Escreva algo antes de salvar',link:'Cole um link antes de salvar',foto:'Escolha ou tire uma foto antes de salvar',audio:'Grave ou envie um áudio antes de salvar'};
           const seletor=`<div class="campo"><label>Tipo de conteúdo</label><div class="seletor-tipo">${Object.keys(ICONE).map(t=>`<button data-tipo="${t}"${t===tipoAtual?' class="ativo"':''}><span>${ICONE[t]}</span>${NOME[t]}</button>`).join('')}</div></div>`;
           modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${editando?'Editar item':'Adicionar item'}</h2><div class="sub">Em "${escapeHtml(materia.nome)} / ${escapeHtml(conteudo.nome)}"</div>
-            ${seletor}
             <div class="campo"><label>Título (opcional)</label><input type="text" id="campoTitulo" placeholder="Ex.: Resumo do artigo 5º" maxlength="100" value="${escapeHtml(itemEditar?.titulo||'')}"></div>
+            <div id="listaBlocos"></div>
+            ${seletor}
             <div id="corpoDinamico"></div>
+            <div class="campo" id="campoDescWrap"><label>Descrição (opcional)</label><input type="text" id="campoDescricao" placeholder="Ex.: palavras-chave para achar depois" maxlength="200" value=""></div>
+            <button type="button" class="cbtn btn-secundario" id="btnAddBloco" style="width:100%;flex:none">➕ Adicionar mais um ao item</button>
             <div class="modal-acoes"><button class="cbtn btn-secundario" data-fechar>Cancelar</button><button class="cbtn btn-primario" id="salvarItem">${editando?'Salvar alterações':'Salvar item'}</button></div>`;
           abrirOverlay();
           modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
 
-          function renderCorpo(tipo){
+          function renderLista(){
+            const el=document.getElementById('listaBlocos');
+            if(!blocos.length){ el.innerHTML=''; return; }
+            el.innerHTML=`<div class="campo"><label>Neste item (${blocos.length})</label>`+blocos.map((b,i)=>{
+              const prev=b.tipo==='foto'
+                ? `<img src="${b.conteudo}" alt="" style="height:38px;width:38px;object-fit:cover;border-radius:6px;flex:none">`
+                : `<span style="font-size:1.1rem;flex:none">${ICONE[b.tipo]}</span>`;
+              const rot=(b.tipo==='foto'||b.tipo==='audio')?(b.descricao||NOME[b.tipo]):b.conteudo;
+              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--borda);border-radius:var(--raio-sm);background:var(--bg)">${prev}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rot)}</span><button type="button" class="item-btn" data-bedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-bdel="${i}" title="Remover">✕</button></div>`;
+            }).join('')+`</div>`;
+          }
+
+          function marcarTipo(){
+            modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.toggle('ativo',b.dataset.tipo===tipoAtual));
+          }
+
+          function renderCorpo(tipo,bloco){
             const div=document.getElementById('corpoDinamico');
-            const atual = editando && itemEditar.tipo===tipo ? itemEditar.conteudo : null;
+            document.getElementById('campoDescWrap').style.display=tipo==='texto'?'none':'';
+            const atual = bloco ? bloco.conteudo : null;
+            if(bloco) document.getElementById('campoDescricao').value=bloco.descricao||'';
             if(tipo==='texto'){
               div.innerHTML=`<div class="campo"><label>Sua anotação</label><textarea id="campoTexto" placeholder="Escreva aqui o conteúdo que você quer revisar...">${escapeHtml(atual||'')}</textarea></div>`;
             } else if(tipo==='link'){
@@ -1172,25 +1263,60 @@
             const pv=document.getElementById(tipo==='foto'?'previewFoto':'previewAudio');
             if(atual&&pv){ pv.src=atual; pv.style.display='block'; }
           }
+
+          /* Lê o que está preenchido agora e devolve um bloco (ou null se estiver vazio) */
+          function coletarBloco(){
+            let valor=null;
+            if(tipoAtual==='texto'){ valor=document.getElementById('campoTexto').value.trim(); if(!valor) return null; }
+            else if(tipoAtual==='link'){ valor=document.getElementById('campoLink').value.trim(); if(!valor) return null; if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
+            else if(tipoAtual==='foto'){ const img=document.getElementById('previewFoto'); if(img.style.display==='none') return null; valor=img.src; }
+            else if(tipoAtual==='audio'){ const a=document.getElementById('previewAudio'); if(a.style.display==='none') return null; valor=a.src; }
+            const descricao=tipoAtual==='texto'?'':document.getElementById('campoDescricao').value.trim();
+            return {tipo:tipoAtual,conteudo:valor,descricao};
+          }
+
+          renderLista();
           renderCorpo(tipoAtual);
           modal.querySelectorAll('.seletor-tipo button').forEach(btn=>{
-            btn.onclick=()=>{ modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.remove('ativo')); btn.classList.add('ativo'); tipoAtual=btn.dataset.tipo; renderCorpo(tipoAtual); };
+            btn.onclick=()=>{ tipoAtual=btn.dataset.tipo; marcarTipo(); renderCorpo(tipoAtual); };
           });
+
+          /* Editar / remover blocos já adicionados */
+          document.getElementById('listaBlocos').addEventListener('click',e=>{
+            const bd=e.target.closest('[data-bdel]');
+            if(bd){ blocos.splice(parseInt(bd.dataset.bdel,10),1); renderLista(); return; }
+            const be=e.target.closest('[data-bedit]');
+            if(be){
+              const b=blocos.splice(parseInt(be.dataset.bedit,10),1)[0];
+              tipoAtual=b.tipo; marcarTipo(); renderCorpo(tipoAtual,b); renderLista();
+            }
+          });
+
+          /* Adicionar mais um bloco (texto, foto, áudio ou link) ao mesmo item */
+          document.getElementById('btnAddBloco').onclick=()=>{
+            const b=coletarBloco();
+            if(!b){ mostrarToast(MSG_VAZIO[tipoAtual].replace('salvar','adicionar')); return; }
+            blocos.push(b);
+            document.getElementById('campoDescricao').value='';
+            renderLista(); renderCorpo(tipoAtual);
+            mostrarToast('Adicionado ao item ✅ — pode adicionar mais');
+          };
 
           document.getElementById('salvarItem').onclick=()=>{
             const titulo=document.getElementById('campoTitulo').value.trim();
-            let valor=null;
-            if(tipoAtual==='texto'){ valor=document.getElementById('campoTexto').value.trim(); if(!valor){ mostrarToast('Escreva algo antes de salvar'); return; } }
-            else if(tipoAtual==='link'){ valor=document.getElementById('campoLink').value.trim(); if(!valor){ mostrarToast('Cole um link antes de salvar'); return; } if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
-            else if(tipoAtual==='foto'){ const img=document.getElementById('previewFoto'); if(img.style.display==='none'){ mostrarToast('Escolha ou tire uma foto antes de salvar'); return; } valor=img.src; }
-            else if(tipoAtual==='audio'){ const a=document.getElementById('previewAudio'); if(a.style.display==='none'){ mostrarToast('Grave ou envie um áudio antes de salvar'); return; } valor=a.src; }
-            if(editando) Object.assign(itemEditar,{tipo:tipoAtual,titulo,conteudo:valor});
-            else conteudo.itens.push({id:uid(),tipo:tipoAtual,titulo,conteudo:valor,data:agora(),criadoEm:Date.now()});
+            const pendente=coletarBloco();
+            if(pendente) blocos.push(pendente);
+            if(!blocos.length){ mostrarToast(MSG_VAZIO[tipoAtual]); return; }
+            if(editando){
+              itemEditar.titulo=titulo; itemEditar.blocos=blocos;
+              delete itemEditar.tipo; delete itemEditar.conteudo; delete itemEditar.descricao;
+            }
+            else conteudo.itens.push({id:uid(),titulo,blocos,data:agora(),criadoEm:Date.now()});
             salvar(); fecharOverlay(); renderizar(); mostrarToast(editando?'Item atualizado ✅':'Item adicionado ✅');
           };
         }
 
-        renderizar();
+        pronto.then(renderizar);
         })();
 
         // Flashcards
