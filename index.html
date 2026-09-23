@@ -207,7 +207,7 @@
         #cad .vazio strong{color:var(--texto);display:block;margin-bottom:4px;font-family:'Poppins'}
         #cad .lista-itens{display:flex;flex-direction:column;gap:14px}
         #cad .item-card{background:var(--bg-card);border:1px solid var(--borda);border-radius:var(--raio);padding:16px 18px;box-shadow:var(--sombra);position:relative}
-        #cad .item-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-right:68px}
+        #cad .item-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-right:100px}
         #cad .item-tag{font-size:.68rem;font-weight:700;letter-spacing:.4px;padding:4px 10px;border-radius:999px;font-family:'Poppins'}
         #cad .item-tag.texto,#cad .item-tag.link{background:rgba(157,78,221,.2);color:var(--roxo-200)}
         #cad .item-tag.foto{background:rgba(212,175,55,.2);color:var(--ouro-claro)}
@@ -219,10 +219,14 @@
         #cad .item-card audio{width:100%;margin-top:6px}
         #cad .item-card a.item-link{color:var(--verde-neon);text-decoration:none;font-weight:600;word-break:break-all}
         #cad .item-card a.item-link:hover{text-decoration:underline}
+        #cad .item-card summary{cursor:pointer;color:var(--ouro-claro);font-weight:600;font-size:.85rem}
+        #cad .item-explicacao{margin-top:6px;padding:10px 12px;background:var(--bg);border-radius:var(--raio-sm)}
         #cad .item-acoes{position:absolute;top:14px;right:14px;display:flex;gap:10px}
         #cad .item-btn{background:none;border:none;color:var(--texto-fraco);cursor:pointer;font-size:.95rem}
         #cad .item-btn:hover{color:var(--verde-neon)}
         #cad .item-btn.del:hover{color:#ff6b6b}
+        #cad .item-btn.arrastar{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-size:1.1rem;line-height:1}
+        #cad .arrastando{opacity:.9;border-color:var(--verde-neon);box-shadow:0 10px 34px rgba(57,255,106,.35);user-select:none;-webkit-user-select:none}
         #cad .nota-dot{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
             border:2px solid var(--borda);background:var(--bg-elevada);color:var(--texto);font-size:.72rem;font-weight:700;
             font-family:'Poppins';cursor:pointer;flex:none}
@@ -379,23 +383,23 @@
                 <label>Marque as revisões já realizadas:</label>
                 <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
                     <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
-                        <input type="checkbox" id="review1" value="0" onchange="updateCheckboxes(0)">
+                        <input type="checkbox" id="review1" onchange="updateCheckboxes(0)">
                         <span>Revisão 1 dia</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
-                        <input type="checkbox" id="review7" value="1" onchange="updateCheckboxes(1)">
+                        <input type="checkbox" id="review7" onchange="updateCheckboxes(1)">
                         <span>Revisão 7 dias</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
-                        <input type="checkbox" id="review30" value="2" onchange="updateCheckboxes(2)">
+                        <input type="checkbox" id="review30" onchange="updateCheckboxes(2)">
                         <span>Revisão 30 dias</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
-                        <input type="checkbox" id="review60" value="3" onchange="updateCheckboxes(3)">
+                        <input type="checkbox" id="review60" onchange="updateCheckboxes(3)">
                         <span>Revisão 60 dias</span>
                     </label>
                     <label style="display:flex;align-items:center;gap:.5rem;font-weight:normal;cursor:pointer">
-                        <input type="checkbox" id="review90" value="4" onchange="updateCheckboxes(4)">
+                        <input type="checkbox" id="review90" onchange="updateCheckboxes(4)">
                         <span>Revisão 90 dias</span>
                     </label>
                 </div>
@@ -448,7 +452,7 @@
             </div>
             <div class="topo-acoes">
                 <button class="icon-btn" id="btnVoltar" title="Voltar às revisões">←</button>
-                <button class="icon-btn" id="btnExportar" title="Exportar backup (.json)">💾</button>
+                <button class="icon-btn" id="btnExportar" title="Exportar backup completo (.json)">💾</button>
                 <button class="icon-btn" id="btnImportar" title="Importar backup (.json)">📂</button>
                 <input type="file" id="inputImportar" accept="application/json,.json" style="display:none">
                 <button class="icon-btn" id="btnMusica" title="Som de água relaxante">🎵</button>
@@ -541,13 +545,12 @@
     </div>
 
     <script>
-        const REVIEW_INTERVALS=[1,7,30,60,90];
+        const REVIEW_INTERVALS=[1,7,30,60,90],REVIEW_IDS=['review1','review7','review30','review60','review90'];
         let subjects={},editingSubjectId=null,flashcards=[],currentCardIndex=0,correctCount=0,incorrectCount=0,
             cardRevealed=false,currentTheme='',creatingTheme='',cardsToCreate=0,cardsCreated=0,currentFilter='';
 
         function updateCheckboxes(index){
-            const cbs=[document.getElementById('review1'),document.getElementById('review7'),
-                document.getElementById('review30'),document.getElementById('review60'),document.getElementById('review90')];
+            const cbs=REVIEW_IDS.map(id=>document.getElementById(id));
             if(cbs[index].checked)for(let i=0;i<index;i++)cbs[i].checked=true;
             else for(let i=index+1;i<cbs.length;i++)cbs[i].checked=false;
         }
@@ -569,13 +572,7 @@
             const name=document.getElementById('subjectName').value.trim(),
                   content=document.getElementById('subjectContent').value.trim(),
                   notes=document.getElementById('subjectNotes').value.trim();
-            
-            const completedReviews=[];
-            if(document.getElementById('review1').checked)completedReviews.push(0);
-            if(document.getElementById('review7').checked)completedReviews.push(1);
-            if(document.getElementById('review30').checked)completedReviews.push(2);
-            if(document.getElementById('review60').checked)completedReviews.push(3);
-            if(document.getElementById('review90').checked)completedReviews.push(4);
+            const completedReviews=REVIEW_IDS.map((id,i)=>i).filter(i=>document.getElementById(REVIEW_IDS[i]).checked);
             
             if(!name||!content){alert('Por favor, preencha todos os campos obrigatórios');return}
 
@@ -593,7 +590,7 @@
             document.getElementById('subjectName').value='';
             document.getElementById('subjectContent').value='';
             document.getElementById('subjectNotes').value='';
-            ['review1','review7','review30','review60','review90'].forEach(id=>document.getElementById(id).checked=false);
+            REVIEW_IDS.forEach(id=>document.getElementById(id).checked=false);
             
             saveData();renderSubjects();
         }
@@ -716,20 +713,23 @@
 
         function formatDate(d){return new Date(d).toLocaleDateString('pt-BR')}
 
-        function checkOverdueReviews(){
-            const overdue=[],today=new Date();today.setHours(0,0,0,0);
+        /* Lista única de revisões pendentes/atrasadas (usada pelo aviso, pelo sino e pelo contador) */
+        function getOverdue(){
+            const out=[],today=new Date();today.setHours(0,0,0,0);
             Object.entries(subjects).forEach(([id,s])=>{
                 s.reviews.forEach((r,idx)=>{
                     const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
                     const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
                     if(pending&&rd<=today){
-                        overdue.push({subjectId:id,subject:s.name,content:s.content,days:r.days,
+                        out.push({subjectId:id,subject:s.name,content:s.content,days:r.days,
                             daysOverdue:Math.ceil((today-rd)/86400000),reviewIndex:idx});
                     }
                 });
             });
-            if(overdue.length)showOverdueModal(overdue);
+            return out;
         }
+
+        function checkOverdueReviews(){const o=getOverdue();if(o.length)showOverdueModal(o)}
 
         function showOverdueModal(list){
             const modal=document.getElementById('overdueModal'),ol=document.getElementById('overdueList');
@@ -765,44 +765,24 @@
         function closeModal(){document.getElementById('overdueModal').classList.remove('active')}
 
         function toggleTheme(){
-            const ct=document.documentElement.getAttribute('data-theme');
-            const nt=ct==='dark'?'light':'dark';
+            const nt=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
             document.documentElement.setAttribute('data-theme',nt);
             localStorage.setItem('theme',nt);
         }
 
         function loadTheme(){
-            const t=localStorage.getItem('theme')||'light';
-            document.documentElement.setAttribute('data-theme',t);
+            document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light');
         }
 
         function updateNotificationBadge(){
-            const today=new Date();today.setHours(0,0,0,0);let count=0;
-            Object.entries(subjects).forEach(([id,s])=>{
-                s.reviews.forEach((r,idx)=>{
-                    const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
-                    const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
-                    if(pending&&rd<=today)count++;
-                });
-            });
-            const badge=document.getElementById('notificationBadge');
+            const count=getOverdue().length,badge=document.getElementById('notificationBadge');
             if(count>0){badge.textContent=count;badge.style.display='flex'}
             else badge.style.display='none';
         }
 
         function toggleNotifications(){
-            const overdue=[],today=new Date();today.setHours(0,0,0,0);
-            Object.entries(subjects).forEach(([id,s])=>{
-                s.reviews.forEach((r,idx)=>{
-                    const pending=!r.completed&&(idx===0||s.reviews[idx-1].completed);
-                    const rd=new Date(r.nextDate);rd.setHours(0,0,0,0);
-                    if(pending&&rd<=today){
-                        overdue.push({subjectId:id,subject:s.name,content:s.content,days:r.days,
-                            daysOverdue:Math.ceil((today-rd)/86400000),reviewIndex:idx});
-                    }
-                });
-            });
-            overdue.length?showOverdueModal(overdue):alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
+            const o=getOverdue();
+            o.length?showOverdueModal(o):alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
         }
 
         // ===== Caderno de Revisão =====
@@ -824,6 +804,7 @@
         }
 
         /* Cada item pode ter VÁRIOS blocos (textos, fotos, áudios, links) — sem limite.
+           Cada bloco tem: conteudo, descricao (usada na busca) e explicacao (texto ilimitado).
            Itens antigos (com um único tipo/conteudo) continuam funcionando: viram 1 bloco automaticamente. */
         const getBlocos=item=>Array.isArray(item.blocos)?item.blocos:(item.tipo?[{tipo:item.tipo,conteudo:item.conteudo,descricao:item.descricao||''}]:[]);
         let carrosselIndices={};
@@ -846,7 +827,11 @@
             .catch(()=>{ try{ localStorage.setItem(CHAVE, JSON.stringify(estado)); }catch(e){ mostrarToast('⚠️ Não foi possível salvar (armazenamento cheio?)'); } });
         }
         navigator.storage?.persist?.();
-        pronto.then(()=>{ if(migrar) salvar(); });
+        /* Ordem manual: a ordem do array é a ordem exibida. Na 1ª vez, mantém a ordem antiga (mais novos primeiro). */
+        pronto.then(()=>{
+          if(!estado.ordenado){ estado.materias.forEach(m=>m.conteudos.forEach(c=>c.itens.sort((a,b)=>b.criadoEm-a.criadoEm))); estado.ordenado=true; migrar=true; }
+          if(migrar) salvar();
+        });
         const getMateria=id=>estado.materias.find(m=>m.id===id);
         const getConteudo=(m,id)=>m&&m.conteudos.find(c=>c.id===id);
 
@@ -912,33 +897,34 @@
         let toastTimer=null;
         function mostrarToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('mostrar'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('mostrar'),2400); }
 
-        /* Backup (áudios não entram no arquivo exportado) */
+        /* Backup COMPLETO: texto, foto, áudio e link (com descrição e explicação de cada bloco) */
         function exportarBackup(){
           if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
           const copia={ materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c,
             itens:c.itens
-              .map(i=>({ id:i.id, titulo:i.titulo||'', blocos:getBlocos(i).filter(b=>b.tipo!=='audio'), data:i.data, criadoEm:i.criadoEm }))
+              .map(i=>({ id:i.id, titulo:i.titulo||'', blocos:getBlocos(i), data:i.data, criadoEm:i.criadoEm }))
               .filter(i=>i.blocos.length) })) })) };
           const blob=new Blob([JSON.stringify(copia)],{type:'application/json'});
           const url=URL.createObjectURL(blob), a=document.createElement('a');
           a.href=url; a.download=`caderno-revisao-backup-${new Date().toISOString().slice(0,10)}.json`;
           document.body.appendChild(a); a.click(); a.remove();
           setTimeout(()=>URL.revokeObjectURL(url),4000);
-          mostrarToast('Backup baixado 💾 (áudios não são incluídos)');
+          mostrarToast('Backup completo baixado 💾 (texto, fotos, áudios e links)');
         }
         function mesclarBackup(dados){
           let nm=0,nc=0,ni=0;
+          const igual=(a,b)=>a.trim().toLowerCase()===String(b||'').trim().toLowerCase();
           dados.materias.forEach(mImp=>{
-            let mLocal=estado.materias.find(m=>m.nome.trim().toLowerCase()===String(mImp.nome||'').trim().toLowerCase());
+            let mLocal=estado.materias.find(m=>igual(m.nome,mImp.nome));
             if(!mLocal){ mLocal={id:uid(),nome:mImp.nome||'Sem nome',conteudos:[]}; estado.materias.push(mLocal); nm++; }
             (mImp.conteudos||[]).forEach(cImp=>{
-              let cLocal=mLocal.conteudos.find(c=>c.nome.trim().toLowerCase()===String(cImp.nome||'').trim().toLowerCase());
+              let cLocal=mLocal.conteudos.find(c=>igual(c.nome,cImp.nome));
               if(!cLocal){ cLocal={id:uid(),nome:cImp.nome||'Sem nome',itens:[],nota:cImp.nota??null}; mLocal.conteudos.push(cLocal); nc++; }
               (cImp.itens||[]).forEach(it=>{
                 if(!it) return;
-                const bl=getBlocos(it).filter(b=>b&&b.tipo&&b.tipo!=='audio'&&b.conteudo);
+                const bl=getBlocos(it).filter(b=>b&&b.tipo&&b.conteudo);
                 if(!bl.length) return;
-                cLocal.itens.push({id:uid(),titulo:it.titulo||'',blocos:bl.map(b=>({tipo:b.tipo,conteudo:b.conteudo,descricao:b.descricao||''})),data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
+                cLocal.itens.push({id:uid(),titulo:it.titulo||'',blocos:bl.map(b=>({tipo:b.tipo,conteudo:b.conteudo,descricao:b.descricao||'',explicacao:b.explicacao||''})),data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
                 ni++;
               });
             });
@@ -961,6 +947,33 @@
           };
           reader.readAsText(file);
         };
+
+        /* ===== Arrastar para reordenar (mouse e toque) =====
+           root: elemento que recebe o evento | sel: seletor do que é arrastado | handle: seletor da "alça"
+           scroller: elemento que rola | aoFim(alça, elementosNaNovaOrdem) */
+        function ordenavel(root,sel,handle,scroller,aoFim){
+          root.addEventListener('pointerdown',e=>{
+            const h=e.target.closest(handle); if(!h) return;
+            const el=h.closest(sel), cont=el.parentElement; let y=e.clientY, raf;
+            e.preventDefault(); cont.setPointerCapture(e.pointerId); el.classList.add('arrastando');
+            const passo=()=>{
+              const r=scroller.getBoundingClientRect();
+              if(y<r.top+70) scroller.scrollTop-=14; else if(y>r.bottom-70) scroller.scrollTop+=14;
+              const alvo=[...cont.children].find(c=>c!==el&&c.matches(sel)&&y<c.getBoundingClientRect().top+c.offsetHeight/2)||null;
+              if(alvo?el.nextElementSibling!==alvo:cont.lastElementChild!==el) cont.insertBefore(el,alvo);
+              raf=requestAnimationFrame(passo);
+            };
+            const mv=ev=>{ y=ev.clientY; };
+            const fim=()=>{
+              cancelAnimationFrame(raf); el.classList.remove('arrastando');
+              ['pointermove','pointerup','pointercancel'].forEach((t,i)=>cont.removeEventListener(t,i?fim:mv));
+              try{ cont.releasePointerCapture(e.pointerId); }catch(_){}
+              aoFim(h,[...cont.children].filter(c=>c.matches(sel)));
+            };
+            cont.addEventListener('pointermove',mv); cont.addEventListener('pointerup',fim); cont.addEventListener('pointercancel',fim);
+            passo();
+          });
+        }
 
         /* ===== Render ===== */
         function renderizar(){
@@ -1007,15 +1020,14 @@
         function renderBloco(b,titulo,termo,primeiro){
           let corpo='';
           if(b.tipo==='texto') corpo=`<div class="item-texto">${destacar(b.conteudo,termo)}</div>`;
-          else if(b.tipo==='foto') corpo=`<img src="${b.conteudo}" alt="${escapeHtml(titulo||'foto')}" data-zoom>`;
-          else if(b.tipo==='audio') corpo=`<audio controls src="${b.conteudo}"></audio>`;
+          else if(b.tipo==='foto') corpo=`<img src="${b.conteudo}" alt="${escapeHtml(titulo||'foto')}" loading="lazy" decoding="async" data-zoom>`;
+          else if(b.tipo==='audio') corpo=`<audio controls preload="none" src="${b.conteudo}"></audio>`;
           else if(b.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(b.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(b.conteudo)}</a>`;
-          return `<div${primeiro?'':' style="margin-top:12px"'}>${corpo}${b.descricao?`<div class="item-texto" style="margin-top:8px">${destacar(b.descricao,termo)}</div>`:''}</div>`;
+          return `<div${primeiro?'':' style="margin-top:12px"'}>${corpo}${b.descricao?`<div class="item-texto" style="margin-top:8px">${destacar(b.descricao,termo)}</div>`:''}${b.explicacao?`<details style="margin-top:8px"><summary>💡 Explicação</summary><div class="item-texto item-explicacao">${destacar(b.explicacao,termo)}</div></details>`:''}</div>`;
         }
 
         function renderCarrosselSlide(item,termo,idx){
-          const blocos=getBlocos(item);
-          return renderBloco(blocos[idx],item.titulo,termo,true);
+          return renderBloco(getBlocos(item)[idx],item.titulo,termo,true);
         }
         function renderCarrossel(item,mid,cid,termo){
           const blocos=getBlocos(item);
@@ -1031,8 +1043,9 @@
           const blocos=getBlocos(item);
           const tipos=[...new Set(blocos.map(b=>b.tipo))];
           const corpo=blocos.length>1?renderCarrossel(item,mid,cid,termo):blocos.map((b,i)=>renderBloco(b,item.titulo,termo,i===0)).join('');
-          return `<div class="item-card">
+          return `<div class="item-card" data-iid="${item.id}">
             <div class="item-acoes">
+              ${termo?'':`<button class="item-btn arrastar" data-arrastar data-mid="${mid}" data-cid="${cid}" title="Segure e arraste para reordenar">⠿</button>`}
               <button class="item-btn" data-editar="1" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Editar item">✏️</button>
               <button class="item-btn del" data-del="item" data-mid="${mid}" data-cid="${cid}" data-iid="${item.id}" title="Excluir item">✕</button>
             </div>
@@ -1047,7 +1060,7 @@
           const cab=`<div class="cabecalho-secao"><div><h1>${escapeHtml(c.nome)}</h1><p>${n?`${n} item${n!==1?'s':''}`:'Nenhum item ainda.'}</p></div></div>
             <button class="nota-dot fixa ${corNota(c.nota)}" data-nota="1" data-mid="${m.id}" data-cid="${c.id}" title="Sua nota da prova — toque para alterar">${textoNota(c.nota)}</button>`;
           if(!n) return bc+cab+`<div class="vazio"><span class="emoji">✍️</span><strong>Comece a anotar</strong>Adicione texto, foto, áudio ou link com o botão "Adicionar".</div>`;
-          return bc+cab+`<div class="lista-itens">${[...c.itens].sort((a,b)=>b.criadoEm-a.criadoEm).map(i=>renderItem(i,m.id,c.id)).join('')}</div>`;
+          return bc+cab+`<div class="lista-itens">${c.itens.map(i=>renderItem(i,m.id,c.id)).join('')}</div>`;
         }
 
         function renderRevisao(m){
@@ -1055,8 +1068,8 @@
             <button data-ir="materia" data-mid="${m.id}">${escapeHtml(m.nome)}</button><span class="sep">/</span><span class="atual">Revisão rápida</span></div>`;
           const grupos=m.conteudos.filter(c=>c.itens.length);
           if(!grupos.length) return bc+`<div class="vazio"><span class="emoji">⚡</span><strong>Nada para revisar ainda</strong>Adicione conteúdos e itens primeiro.</div>`;
-          const html=grupos.map(c=>`<div class="revisao-grupo"><h2>🗂️ ${escapeHtml(c.nome)}</h2><div class="lista-itens">${[...c.itens].sort((a,b)=>a.criadoEm-b.criadoEm).map(i=>renderItem(i,m.id,c.id)).join('')}</div></div>`).join('');
-          return bc+`<div class="cabecalho-secao"><div><h1>⚡ Revisão rápida — ${escapeHtml(m.nome)}</h1><p>Tudo desta matéria, em ordem, para revisar sem clicar em cada pasta.</p></div></div>${html}`;
+          const html=grupos.map(c=>`<div class="revisao-grupo"><h2>🗂️ ${escapeHtml(c.nome)}</h2><div class="lista-itens">${c.itens.map(i=>renderItem(i,m.id,c.id)).join('')}</div></div>`).join('');
+          return bc+`<div class="cabecalho-secao"><div><h1>⚡ Revisão rápida — ${escapeHtml(m.nome)}</h1><p>Tudo desta matéria, na sua ordem, para revisar sem clicar em cada pasta.</p></div></div>${html}`;
         }
 
         function renderBusca(termo){
@@ -1079,7 +1092,8 @@
         document.getElementById('inputBusca').addEventListener('input',()=>{ clearTimeout(buscaDebounce); buscaDebounce=setTimeout(renderizar,180); });
 
         /* ===== Delegação de eventos (navegar, excluir, ampliar foto) ===== */
-        document.getElementById('main').addEventListener('click', e=>{
+        const mainEl=document.getElementById('main');
+        mainEl.addEventListener('click', e=>{
           const carBtn=e.target.closest('[data-car-prev],[data-car-next]');
           if(carBtn){
             const wrap=carBtn.closest('.item-carrossel'), {mid,cid,iid}=wrap.dataset;
@@ -1114,6 +1128,13 @@
         });
         document.getElementById('lightbox').addEventListener('click', function(){ this.classList.remove('aberto'); document.getElementById('lightboxImg').src=''; });
 
+        /* Arrastar os cards de item (na pasta do conteúdo e na revisão rápida) */
+        ordenavel(mainEl,'.item-card','[data-arrastar]',cad,(h,els)=>{
+          const c=getConteudo(getMateria(h.dataset.mid),h.dataset.cid);
+          c.itens=els.map(x=>c.itens.find(i=>i.id===x.dataset.iid)).filter(Boolean);
+          salvar();
+        });
+
         /* ===== Modais ===== */
         const overlay=document.getElementById('overlay'), modal=document.getElementById('modal');
         const abrirOverlay=()=>overlay.classList.add('aberto');
@@ -1124,6 +1145,10 @@
           else if(rota.view==='materia') abrirModalEscolherAcao(rota.mid);
           else abrirModalEscolherAcao(null);
         };
+
+        /* Arrastar os itens (blocos) dentro do card, na janela de edição */
+        let aoOrdenarBlocos=null;
+        ordenavel(modal,'.bloco-linha','[data-barrastar]',modal,(h,els)=>aoOrdenarBlocos&&aoOrdenarBlocos(els.map(x=>+x.dataset.i)));
 
         function modalForm({titulo,sub,placeholder,textoBtn,aoSalvar,valor='',teclado='text',vazioOk=false}){
           modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${titulo}</h2><div class="sub">${sub}</div>
@@ -1182,7 +1207,8 @@
             <div id="listaBlocos"></div>
             ${seletor}
             <div id="corpoDinamico"></div>
-            <div class="campo" id="campoDescWrap"><label>Descrição (opcional)</label><input type="text" id="campoDescricao" placeholder="Ex.: palavras-chave para achar depois" maxlength="200" value=""></div>
+            <div class="campo"><label>Descrição (usada para buscar depois — sem limite)</label><textarea id="campoDescricao" style="min-height:70px" placeholder="Ex.: palavras-chave para achar depois"></textarea></div>
+            <div class="campo"><label>Explicação (opcional — sem limite)</label><textarea id="campoExplicacao" placeholder="Escreva aqui uma explicação detalhada sobre este texto, foto, áudio ou link..."></textarea></div>
             <button type="button" class="cbtn btn-secundario" id="btnAddBloco" style="width:100%;flex:none">➕ Adicionar mais um ao item</button>
             <div class="modal-acoes"><button class="cbtn btn-secundario" data-fechar>Cancelar</button><button class="cbtn btn-primario" id="salvarItem">${editando?'Salvar alterações':'Salvar item'}</button></div>`;
           abrirOverlay();
@@ -1191,14 +1217,15 @@
           function renderLista(){
             const el=document.getElementById('listaBlocos');
             if(!blocos.length){ el.innerHTML=''; return; }
-            el.innerHTML=`<div class="campo"><label>Neste item (${blocos.length})</label>`+blocos.map((b,i)=>{
+            el.innerHTML=`<div class="campo"><label>Neste item (${blocos.length}) — arraste ⠿ para reordenar</label><div id="blocosLinhas">`+blocos.map((b,i)=>{
               const prev=b.tipo==='foto'
                 ? `<img src="${b.conteudo}" alt="" style="height:38px;width:38px;object-fit:cover;border-radius:6px;flex:none">`
                 : `<span style="font-size:1.1rem;flex:none">${ICONE[b.tipo]}</span>`;
               const rot=(b.tipo==='foto'||b.tipo==='audio')?(b.descricao||NOME[b.tipo]):b.conteudo;
-              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--borda);border-radius:var(--raio-sm);background:var(--bg)">${prev}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rot)}</span><button type="button" class="item-btn" data-bedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-bdel="${i}" title="Remover">✕</button></div>`;
-            }).join('')+`</div>`;
+              return `<div class="bloco-linha" data-i="${i}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--borda);border-radius:var(--raio-sm);background:var(--bg)"><button type="button" class="item-btn arrastar" data-barrastar title="Segure e arraste para reordenar">⠿</button>${prev}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rot)}</span><button type="button" class="item-btn" data-bedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-bdel="${i}" title="Remover">✕</button></div>`;
+            }).join('')+`</div></div>`;
           }
+          aoOrdenarBlocos=idx=>{ blocos=idx.map(i=>blocos[i]); renderLista(); };
 
           function marcarTipo(){
             modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.toggle('ativo',b.dataset.tipo===tipoAtual));
@@ -1206,9 +1233,8 @@
 
           function renderCorpo(tipo,bloco){
             const div=document.getElementById('corpoDinamico');
-            document.getElementById('campoDescWrap').style.display=tipo==='texto'?'none':'';
             const atual = bloco ? bloco.conteudo : null;
-            if(bloco) document.getElementById('campoDescricao').value=bloco.descricao||'';
+            if(bloco){ document.getElementById('campoDescricao').value=bloco.descricao||''; document.getElementById('campoExplicacao').value=bloco.explicacao||''; }
             if(tipo==='texto'){
               div.innerHTML=`<div class="campo"><label>Sua anotação</label><textarea id="campoTexto" placeholder="Escreva aqui o conteúdo que você quer revisar...">${escapeHtml(atual||'')}</textarea></div>`;
             } else if(tipo==='link'){
@@ -1231,8 +1257,7 @@
                 <input type="file" id="campoAudio" accept="audio/*" style="display:none">
                 <div class="grav-status" id="statusGravacao"><span class="grav-ponto"></span><span id="tempoGravacao">Gravando... 0s</span>
                   <button type="button" class="cbtn btn-primario" id="btnPararGravar" style="flex:none;padding:8px 16px;font-size:.8rem;">Parar</button></div>
-                <audio id="previewAudio" controls style="display:none;width:100%;margin-top:10px;"></audio>
-                <div class="sub" style="margin:8px 0 0;">O áudio não é incluído no backup exportado (arquivos ficam grandes) — ele fica salvo só neste navegador.</div></div>`;
+                <audio id="previewAudio" controls style="display:none;width:100%;margin-top:10px;"></audio></div>`;
               document.getElementById('btnEnviarAudio').onclick=()=>document.getElementById('campoAudio').click();
               document.getElementById('campoAudio').onchange=e=>{
                 const file=e.target.files[0]; if(!file) return;
@@ -1271,8 +1296,7 @@
             else if(tipoAtual==='link'){ valor=document.getElementById('campoLink').value.trim(); if(!valor) return null; if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
             else if(tipoAtual==='foto'){ const img=document.getElementById('previewFoto'); if(img.style.display==='none') return null; valor=img.src; }
             else if(tipoAtual==='audio'){ const a=document.getElementById('previewAudio'); if(a.style.display==='none') return null; valor=a.src; }
-            const descricao=tipoAtual==='texto'?'':document.getElementById('campoDescricao').value.trim();
-            return {tipo:tipoAtual,conteudo:valor,descricao};
+            return {tipo:tipoAtual,conteudo:valor,descricao:document.getElementById('campoDescricao').value.trim(),explicacao:document.getElementById('campoExplicacao').value.trim()};
           }
 
           renderLista();
@@ -1297,7 +1321,7 @@
             const b=coletarBloco();
             if(!b){ mostrarToast(MSG_VAZIO[tipoAtual].replace('salvar','adicionar')); return; }
             blocos.push(b);
-            document.getElementById('campoDescricao').value='';
+            document.getElementById('campoDescricao').value=''; document.getElementById('campoExplicacao').value='';
             renderLista(); renderCorpo(tipoAtual);
             mostrarToast('Adicionado ao item ✅ — pode adicionar mais');
           };
@@ -1311,7 +1335,7 @@
               itemEditar.titulo=titulo; itemEditar.blocos=blocos;
               delete itemEditar.tipo; delete itemEditar.conteudo; delete itemEditar.descricao;
             }
-            else conteudo.itens.push({id:uid(),titulo,blocos,data:agora(),criadoEm:Date.now()});
+            else conteudo.itens.unshift({id:uid(),titulo,blocos,data:agora(),criadoEm:Date.now()});
             salvar(); fecharOverlay(); renderizar(); mostrarToast(editando?'Item atualizado ✅':'Item adicionado ✅');
           };
         }
