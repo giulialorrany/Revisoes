@@ -453,8 +453,9 @@
             <div class="topo-acoes">
                 <button class="icon-btn" id="btnVoltar" title="Voltar às revisões">←</button>
                 <button class="icon-btn" id="btnExportar" title="Exportar backup completo (.json)">💾</button>
-                <button class="icon-btn" id="btnImportar" title="Importar backup (.json)">📂</button>
-                <input type="file" id="inputImportar" accept="application/json,.json" style="display:none">
+                <button class="icon-btn" id="btnExportarTxt" title="Exportar em HTML ou TXT">📄</button>
+                <button class="icon-btn" id="btnImportar" title="Importar backup (.json ou .txt)">📂</button>
+                <input type="file" id="inputImportar" accept="application/json,.json,text/plain,.txt,.html" style="display:none">
                 <button class="icon-btn" id="btnMusica" title="Som de água relaxante">🎵</button>
                 <button class="icon-btn" id="btnTema" title="Alternar tema">🌙</button>
             </div>
@@ -785,6 +786,49 @@
             o.length?showOverdueModal(o):alert('🎉 Nenhuma revisão atrasada! Você está em dia!');
         }
 
+        /* ===== Visualizador embutido no TXT exportado =====
+           Esta função é convertida em texto e colocada dentro do arquivo exportado,
+           para que ele funcione sozinho no navegador ou no VS Code (Live Server). */
+        function visualizadorCaderno(){
+          var dados=JSON.parse(document.getElementById('dados-caderno').textContent);
+          var app=document.getElementById('app'), busca=document.getElementById('busca');
+          function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
+          function getBlocos(i){ return Array.isArray(i.blocos)?i.blocos:(i.tipo?[{tipo:i.tipo,conteudo:i.conteudo,descricao:i.descricao||''}]:[]); }
+          function getUn(b){ return Array.isArray(b.unidades)?b.unidades:(b.tipo?[{tipo:b.tipo,conteudo:b.conteudo,explicacao:b.explicacao}]:[]); }
+          (dados.materias||[]).forEach(function(m){
+            var det=el('details','mat'); det.open=true; det.appendChild(el('summary','',m.nome));
+            (m.conteudos||[]).forEach(function(c){
+              var sec=el('section','cont');
+              sec.appendChild(el('h2','','🗂️ '+c.nome+(c.nota!=null?'  —  nota '+c.nota:'')));
+              (c.itens||[]).forEach(function(i){
+                var card=el('div','item');
+                if(i.titulo) card.appendChild(el('h3','',i.titulo));
+                getBlocos(i).forEach(function(b){
+                  var w=el('div','bloco');
+                  getUn(b).forEach(function(u){
+                    var uw=el('div','unid');
+                    if(u.tipo==='texto') uw.appendChild(el('p','',u.conteudo));
+                    else if(u.tipo==='foto'){ var im=document.createElement('img'); im.src=u.conteudo; im.loading='lazy'; uw.appendChild(im); }
+                    else if(u.tipo==='audio'){ var au=document.createElement('audio'); au.controls=true; au.preload='none'; au.src=u.conteudo; uw.appendChild(au); }
+                    else if(u.tipo==='link'){ var a=el('a','',u.conteudo); if(/^https?:\/\//i.test(u.conteudo)) a.href=u.conteudo; a.target='_blank'; a.rel='noopener noreferrer'; uw.appendChild(a); }
+                    if(u.explicacao){ var d=el('details','expl'); d.appendChild(el('summary','','💡 Explicação')); d.appendChild(el('p','',u.explicacao)); uw.appendChild(d); }
+                    w.appendChild(uw);
+                  });
+                  if(b.descricao) w.appendChild(el('p','desc',b.descricao));
+                  card.appendChild(w);
+                });
+                sec.appendChild(card);
+              });
+              det.appendChild(sec);
+            });
+            app.appendChild(det);
+          });
+          busca.addEventListener('input',function(){
+            var t=busca.value.trim().toLowerCase();
+            document.querySelectorAll('.item').forEach(function(it){ it.style.display=(!t||it.textContent.toLowerCase().indexOf(t)>-1)?'':'none'; });
+          });
+        }
+
         // ===== Caderno de Revisão =====
         (function(){
         "use strict";
@@ -807,6 +851,8 @@
            Cada bloco tem: conteudo, descricao (usada na busca) e explicacao (texto ilimitado).
            Itens antigos (com um único tipo/conteudo) continuam funcionando: viram 1 bloco automaticamente. */
         const getBlocos=item=>Array.isArray(item.blocos)?item.blocos:(item.tipo?[{tipo:item.tipo,conteudo:item.conteudo,descricao:item.descricao||''}]:[]);
+        const getUnidades=b=>Array.isArray(b.unidades)?b.unidades:(b.tipo?[{tipo:b.tipo,conteudo:b.conteudo,explicacao:b.explicacao||''}]:[]);
+        const normBloco=b=>({descricao:b.descricao||'',unidades:getUnidades(b).map(u=>({tipo:u.tipo,conteudo:u.conteudo,explicacao:u.explicacao||''}))});
         let carrosselIndices={};
 
         /* Persistência: carrega do IndexedDB ANTES de mostrar ou salvar qualquer coisa */
@@ -898,18 +944,57 @@
         function mostrarToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('mostrar'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('mostrar'),2400); }
 
         /* Backup COMPLETO: texto, foto, áudio e link (com descrição e explicação de cada bloco) */
-        function exportarBackup(){
-          if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
-          const copia={ materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c,
+        function montarCopia(){
+          return { materias: estado.materias.map(m=>({ ...m, conteudos: m.conteudos.map(c=>({ ...c,
             itens:c.itens
               .map(i=>({ id:i.id, titulo:i.titulo||'', blocos:getBlocos(i), data:i.data, criadoEm:i.criadoEm }))
               .filter(i=>i.blocos.length) })) })) };
-          const blob=new Blob([JSON.stringify(copia)],{type:'application/json'});
+        }
+        function baixarArquivo(conteudo,tipo,nome){
+          const blob=new Blob([conteudo],{type:tipo});
           const url=URL.createObjectURL(blob), a=document.createElement('a');
-          a.href=url; a.download=`caderno-revisao-backup-${new Date().toISOString().slice(0,10)}.json`;
+          a.href=url; a.download=nome;
           document.body.appendChild(a); a.click(); a.remove();
           setTimeout(()=>URL.revokeObjectURL(url),4000);
+        }
+        function exportarBackup(){
+          if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
+          baixarArquivo(JSON.stringify(montarCopia()),'application/json',`caderno-revisao-backup-${new Date().toISOString().slice(0,10)}.json`);
           mostrarToast('Backup completo baixado 💾 (texto, fotos, áudios e links)');
+        }
+
+        /* Exportar em TXT: o arquivo é um script HTML completo (texto, foto, áudio e link).
+           Para ver: renomeie para .html (ou cole num arquivo .html no VS Code) e abra no navegador.
+           Para importar de volta: use o botão 📂 e escolha este .txt. */
+        function montarHTMLExport(){
+          const json=JSON.stringify(montarCopia()).replace(/</g,'\\u003c');
+          const css='body{font-family:Segoe UI,Tahoma,sans-serif;background:#12081F;color:#F3EAFC;max-width:900px;margin:0 auto;padding:24px}'
+            +'h1{margin-bottom:14px}#busca{width:100%;padding:10px 14px;border-radius:999px;border:1px solid #7B2CBF;background:#1E0E38;color:#F3EAFC;margin-bottom:18px}'
+            +'.mat{margin-bottom:18px}.mat>summary{font-size:1.3rem;font-weight:700;color:#F3D874;cursor:pointer;margin-bottom:10px}'
+            +'.cont h2{font-size:1.05rem;color:#F3D874;margin:14px 0 8px;border-bottom:1px dashed #7B2CBF;padding-bottom:4px}'
+            +'.item{background:#26123F;border:1px solid #7B2CBF;border-radius:14px;padding:14px 16px;margin-bottom:12px}'
+            +'.item h3{margin-bottom:8px}.bloco{margin-top:10px}.bloco p{white-space:pre-wrap;line-height:1.5}.desc{color:#B7A3D6;margin-top:6px}'
+            +'img{max-width:100%;border-radius:10px;display:block}audio{width:100%}a{color:#39FF6A;word-break:break-all}'
+            +'.unid{margin-top:10px}.unid+.unid{border-top:1px dashed #7B2CBF;padding-top:10px}.bloco+.bloco{border-top:1px dashed #7B2CBF;padding-top:10px}'
+            +'.expl summary{cursor:pointer;color:#F3D874;font-weight:600;margin-top:6px}';
+          const html='<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Caderno de Revisão</title>\n<style>'+css+'</style>\n</head>\n<body>\n<h1>📚 Caderno de Revisão</h1>\n<input id="busca" type="text" placeholder="Buscar...">\n<div id="app"></div>\n'
+            +'<script type="application/json" id="dados-caderno">'+json+'<\/script>\n'
+            +'<script>('+visualizadorCaderno.toString()+')();<\/script>\n</body>\n</html>';
+          return html;
+        }
+        function exportarArquivo(ext){
+          if(!estado.materias.length){ mostrarToast('Não há nada para exportar ainda'); return; }
+          baixarArquivo(montarHTMLExport(),ext==='html'?'text/html':'text/plain',`caderno-revisao-${new Date().toISOString().slice(0,10)}.${ext}`);
+          mostrarToast(ext==='html'?'HTML exportado 🌐 — abra no navegador ou com o Go Live':'TXT exportado 📄 — renomeie para .html para abrir');
+        }
+        function abrirModalExportar(){
+          modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>Exportar caderno</h2><div class="sub">Escolha o formato do arquivo</div>
+            <div class="modal-acoes" style="flex-direction:column;">
+              <button class="cbtn btn-primario" data-fmt="html">🌐 HTML — abre direto no navegador / Go Live</button>
+              <button class="cbtn btn-secundario" data-fmt="txt">📄 TXT — texto (renomeie para .html para abrir)</button></div>`;
+          abrirOverlay();
+          modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+          modal.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{ fecharOverlay(); exportarArquivo(b.dataset.fmt); });
         }
         function mesclarBackup(dados){
           let nm=0,nc=0,ni=0;
@@ -922,9 +1007,9 @@
               if(!cLocal){ cLocal={id:uid(),nome:cImp.nome||'Sem nome',itens:[],nota:cImp.nota??null}; mLocal.conteudos.push(cLocal); nc++; }
               (cImp.itens||[]).forEach(it=>{
                 if(!it) return;
-                const bl=getBlocos(it).filter(b=>b&&b.tipo&&b.conteudo);
+                const bl=getBlocos(it).filter(Boolean).map(normBloco).map(b=>({descricao:b.descricao,unidades:b.unidades.filter(u=>u&&u.tipo&&u.conteudo)})).filter(b=>b.unidades.length);
                 if(!bl.length) return;
-                cLocal.itens.push({id:uid(),titulo:it.titulo||'',blocos:bl.map(b=>({tipo:b.tipo,conteudo:b.conteudo,descricao:b.descricao||'',explicacao:b.explicacao||''})),data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
+                cLocal.itens.push({id:uid(),titulo:it.titulo||'',blocos:bl,data:it.data||agora(),criadoEm:it.criadoEm||Date.now()});
                 ni++;
               });
             });
@@ -932,6 +1017,7 @@
           return {nm,nc,ni};
         }
         document.getElementById('btnExportar').onclick=exportarBackup;
+        document.getElementById('btnExportarTxt').onclick=abrirModalExportar;
         document.getElementById('btnImportar').onclick=()=>document.getElementById('inputImportar').click();
         document.getElementById('inputImportar').onchange=e=>{
           const file=e.target.files[0]; e.target.value='';
@@ -939,7 +1025,10 @@
           const reader=new FileReader();
           reader.onload=()=>{
             try{
-              const dados=JSON.parse(reader.result);
+              const texto=String(reader.result).trim();
+              /* Aceita .json puro OU o script exportado em TXT/HTML (dados dentro de <script id="dados-caderno">) */
+              const achado=texto.match(/<script[^>]*id="dados-caderno"[^>]*>([\s\S]*?)<\/script>/i);
+              const dados=JSON.parse(achado?achado[1]:texto);
               if(!dados||!Array.isArray(dados.materias)) throw new Error('formato inválido');
               const r=mesclarBackup(dados); salvar(); renderizar();
               mostrarToast(`Backup importado: +${r.nm} matéria(s), +${r.nc} conteúdo(s), +${r.ni} item(ns)`);
@@ -1005,7 +1094,7 @@
           if(!m.conteudos.length) return bc+`<div class="cabecalho-secao"><div><h1>${escapeHtml(m.nome)}</h1><p>Nenhum conteúdo cadastrado ainda.</p></div></div>
             <div class="vazio"><span class="emoji">🗂️</span><strong>Pasta vazia</strong>Toque em "Adicionar" para criar o primeiro conteúdo desta matéria.</div>`;
           const cards=m.conteudos.map(c=>{
-            const partes=['texto','foto','audio','link'].map(t=>{const n=c.itens.reduce((a,i)=>a+getBlocos(i).filter(b=>b.tipo===t).length,0); return n?`${ICONE[t]} ${n}`:'';}).filter(Boolean).join('  ')||'vazio';
+            const partes=['texto','foto','audio','link'].map(t=>{const n=c.itens.reduce((a,i)=>a+getBlocos(i).flatMap(getUnidades).filter(u=>u.tipo===t).length,0); return n?`${ICONE[t]} ${n}`:'';}).filter(Boolean).join('  ')||'vazio';
             return `<div class="pasta" data-ir="conteudo" data-mid="${m.id}" data-cid="${c.id}">
               <button class="del-btn ed-btn" data-ren="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Renomear conteúdo">✏️</button>
               <button class="del-btn" data-del="conteudo" data-mid="${m.id}" data-cid="${c.id}" title="Excluir conteúdo">✕</button>
@@ -1017,13 +1106,18 @@
             <div class="grid-pastas">${cards}</div>`;
         }
 
-        function renderBloco(b,titulo,termo,primeiro){
+        function renderUnidade(u,titulo,termo,primeiro){
           let corpo='';
-          if(b.tipo==='texto') corpo=`<div class="item-texto">${destacar(b.conteudo,termo)}</div>`;
-          else if(b.tipo==='foto') corpo=`<img src="${b.conteudo}" alt="${escapeHtml(titulo||'foto')}" loading="lazy" decoding="async" data-zoom>`;
-          else if(b.tipo==='audio') corpo=`<audio controls preload="none" src="${b.conteudo}"></audio>`;
-          else if(b.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(b.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(b.conteudo)}</a>`;
-          return `<div${primeiro?'':' style="margin-top:12px"'}>${corpo}${b.descricao?`<div class="item-texto" style="margin-top:8px">${destacar(b.descricao,termo)}</div>`:''}${b.explicacao?`<details style="margin-top:8px"><summary>💡 Explicação</summary><div class="item-texto item-explicacao">${destacar(b.explicacao,termo)}</div></details>`:''}</div>`;
+          if(u.tipo==='texto') corpo=`<div class="item-texto">${destacar(u.conteudo,termo)}</div>`;
+          else if(u.tipo==='foto') corpo=`<img src="${u.conteudo}" alt="${escapeHtml(titulo||'foto')}" loading="lazy" decoding="async" data-zoom>`;
+          else if(u.tipo==='audio') corpo=`<audio controls preload="none" src="${u.conteudo}"></audio>`;
+          else if(u.tipo==='link') corpo=`<a class="item-link" href="${escapeHtml(u.conteudo)}" target="_blank" rel="noopener noreferrer">${escapeHtml(u.conteudo)}</a>`;
+          return `<div${primeiro?'':' style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--borda)"'}>${corpo}${u.explicacao?`<details style="margin-top:8px"><summary>💡 Explicação</summary><div class="item-texto item-explicacao">${destacar(u.explicacao,termo)}</div></details>`:''}</div>`;
+        }
+        function renderBloco(b,titulo,termo,primeiro){
+          const un=getUnidades(b);
+          const seta=un.length>1?`<div style="display:none">${un.slice(1).map(u=>renderUnidade(u,titulo,termo,false)).join('')}</div><button type="button" class="item-btn" data-toggle-un="1" style="display:block;margin:10px auto 0;font-size:1.2rem" title="Mostrar ou esconder as outras unidades">▼</button>`:'';
+          return `<div${primeiro?'':' style="margin-top:12px"'}>${un.length?renderUnidade(un[0],titulo,termo,true):''}${seta}${b.descricao?`<div class="item-texto" style="margin-top:10px">${destacar(b.descricao,termo)}</div>`:''}</div>`;
         }
 
         function renderCarrosselSlide(item,termo,idx){
@@ -1041,7 +1135,7 @@
         }
         function renderItem(item,mid,cid,termo){
           const blocos=getBlocos(item);
-          const tipos=[...new Set(blocos.map(b=>b.tipo))];
+          const tipos=[...new Set(blocos.flatMap(getUnidades).map(u=>u.tipo))];
           const corpo=blocos.length>1?renderCarrossel(item,mid,cid,termo):blocos.map((b,i)=>renderBloco(b,item.titulo,termo,i===0)).join('');
           return `<div class="item-card" data-iid="${item.id}">
             <div class="item-acoes">
@@ -1077,7 +1171,7 @@
           estado.materias.forEach(m=>m.conteudos.forEach(c=>{
             const bate=m.nome.toLowerCase().includes(tl)||c.nome.toLowerCase().includes(tl);
             c.itens.forEach(item=>{
-              const alvo=(item.titulo||'')+' '+getBlocos(item).map(b=>(b.descricao||'')+' '+((b.tipo==='texto'||b.tipo==='link')?b.conteudo:'')).join(' ');
+              const alvo=(item.titulo||'')+' '+getBlocos(item).map(b=>(b.descricao||'')+' '+getUnidades(b).map(u=>(u.tipo==='texto'||u.tipo==='link')?u.conteudo:'').join(' ')).join(' ');
               if(bate||alvo.toLowerCase().includes(tl)) out.push({m,c,item});
             });
             if(bate&&!c.itens.length) out.push({m,c,item:null});
@@ -1094,6 +1188,8 @@
         /* ===== Delegação de eventos (navegar, excluir, ampliar foto) ===== */
         const mainEl=document.getElementById('main');
         mainEl.addEventListener('click', e=>{
+          const tg=e.target.closest('[data-toggle-un]');
+          if(tg){ const box=tg.previousElementSibling, abrir=box.style.display==='none'; box.style.display=abrir?'block':'none'; tg.textContent=abrir?'▲':'▼'; return; }
           const carBtn=e.target.closest('[data-car-prev],[data-car-next]');
           if(carBtn){
             const wrap=carBtn.closest('.item-carrossel'), {mid,cid,iid}=wrap.dataset;
@@ -1148,7 +1244,9 @@
 
         /* Arrastar os itens (blocos) dentro do card, na janela de edição */
         let aoOrdenarBlocos=null;
+        let aoOrdenarUnidades=null;
         ordenavel(modal,'.bloco-linha','[data-barrastar]',modal,(h,els)=>aoOrdenarBlocos&&aoOrdenarBlocos(els.map(x=>+x.dataset.i)));
+        ordenavel(modal,'.unid-linha','[data-uarrastar]',modal,(h,els)=>aoOrdenarUnidades&&aoOrdenarUnidades(els.map(x=>+x.dataset.i)));
 
         function modalForm({titulo,sub,placeholder,textoBtn,aoSalvar,valor='',teclado='text',vazioOk=false}){
           modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${titulo}</h2><div class="sub">${sub}</div>
@@ -1198,138 +1296,201 @@
           const materia=getMateria(materiaId), conteudo=getConteudo(materia,conteudoId);
           const editando=!!itemEditar;
           let tipoAtual='texto';
-          /* blocos já adicionados a este item (sem limite) */
-          let blocos=editando?getBlocos(itemEditar).map(b=>({...b})):[];
+          /* blocos = itens do card (passam para o lado) | unidades = conjunto sendo montado agora (ficam uma embaixo da outra) */
+          let blocos=editando?getBlocos(itemEditar).filter(Boolean).map(normBloco).filter(b=>b.unidades.length):[];
+          let unidades=[], descInicial='';
+          if(editando&&blocos.length===1){ const b=blocos.pop(); unidades=b.unidades; descInicial=b.descricao; }
           const MSG_VAZIO={texto:'Escreva algo antes de salvar',link:'Cole um link antes de salvar',foto:'Escolha ou tire uma foto antes de salvar',audio:'Grave ou envie um áudio antes de salvar'};
           const seletor=`<div class="campo"><label>Tipo de conteúdo</label><div class="seletor-tipo">${Object.keys(ICONE).map(t=>`<button data-tipo="${t}"${t===tipoAtual?' class="ativo"':''}><span>${ICONE[t]}</span>${NOME[t]}</button>`).join('')}</div></div>`;
           modal.innerHTML=`<button class="fechar-modal" data-fechar>✕</button><h2>${editando?'Editar item':'Adicionar item'}</h2><div class="sub">Em "${escapeHtml(materia.nome)} / ${escapeHtml(conteudo.nome)}"</div>
             <div class="campo"><label>Título (opcional)</label><input type="text" id="campoTitulo" placeholder="Ex.: Resumo do artigo 5º" maxlength="100" value="${escapeHtml(itemEditar?.titulo||'')}"></div>
             <div id="listaBlocos"></div>
-            ${seletor}
-            <div id="corpoDinamico"></div>
-            <div class="campo"><label>Descrição (usada para buscar depois — sem limite)</label><textarea id="campoDescricao" style="min-height:70px" placeholder="Ex.: palavras-chave para achar depois"></textarea></div>
-            <div class="campo"><label>Explicação (opcional — sem limite)</label><textarea id="campoExplicacao" placeholder="Escreva aqui uma explicação detalhada sobre este texto, foto, áudio ou link..."></textarea></div>
-            <button type="button" class="cbtn btn-secundario" id="btnAddBloco" style="width:100%;flex:none">➕ Adicionar mais um ao item</button>
+            <div style="border:1px solid var(--borda);border-radius:var(--raio-sm);padding:12px;margin-bottom:16px">
+              <div style="font-weight:700;font-family:'Poppins';font-size:.9rem;margin-bottom:10px;color:var(--ouro-claro)">Item atual — as unidades ficam uma embaixo da outra</div>
+              <div id="listaUnidades"></div>
+              ${seletor}
+              <div id="corpoDinamico"></div>
+              <div class="campo"><label>Explicação desta unidade (opcional — sem limite)</label><textarea id="campoExplicacao" placeholder="Explique aqui esta foto, texto, áudio ou link..."></textarea></div>
+              <button type="button" class="cbtn btn-secundario" id="btnAddUnidade" style="width:100%;flex:none">➕ Adicionar mais uma unidade (fica embaixo)</button>
+              <div class="campo" style="margin-top:16px"><label>Descrição do item (uma só para todas as unidades — usada na busca)</label><textarea id="campoDescricao" style="min-height:70px" placeholder="Ex.: palavras-chave para achar depois">${escapeHtml(descInicial)}</textarea></div>
+              <button type="button" class="cbtn btn-secundario" id="btnNovoItem" style="width:100%;flex:none">📑 Concluir este item e criar outro (passa para o lado)</button>
+            </div>
             <div class="modal-acoes"><button class="cbtn btn-secundario" data-fechar>Cancelar</button><button class="cbtn btn-primario" id="salvarItem">${editando?'Salvar alterações':'Salvar item'}</button></div>`;
           abrirOverlay();
           modal.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=fecharOverlay);
+          const $=id=>document.getElementById(id);
+
+          const prevHTML=u=>u.tipo==='foto'
+            ? `<img src="${u.conteudo}" alt="" style="height:38px;width:38px;object-fit:cover;border-radius:6px;flex:none">`
+            : `<span style="font-size:1.1rem;flex:none">${ICONE[u.tipo]}</span>`;
+          const estiloLinha='display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--borda);border-radius:var(--raio-sm);background:var(--bg)';
+          const rotuloU=u=>(u.tipo==='foto'||u.tipo==='audio')?(u.explicacao||NOME[u.tipo]):u.conteudo;
 
           function renderLista(){
-            const el=document.getElementById('listaBlocos');
+            const el=$('listaBlocos');
             if(!blocos.length){ el.innerHTML=''; return; }
-            el.innerHTML=`<div class="campo"><label>Neste item (${blocos.length}) — arraste ⠿ para reordenar</label><div id="blocosLinhas">`+blocos.map((b,i)=>{
-              const prev=b.tipo==='foto'
-                ? `<img src="${b.conteudo}" alt="" style="height:38px;width:38px;object-fit:cover;border-radius:6px;flex:none">`
-                : `<span style="font-size:1.1rem;flex:none">${ICONE[b.tipo]}</span>`;
-              const rot=(b.tipo==='foto'||b.tipo==='audio')?(b.descricao||NOME[b.tipo]):b.conteudo;
-              return `<div class="bloco-linha" data-i="${i}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--borda);border-radius:var(--raio-sm);background:var(--bg)"><button type="button" class="item-btn arrastar" data-barrastar title="Segure e arraste para reordenar">⠿</button>${prev}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rot)}</span><button type="button" class="item-btn" data-bedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-bdel="${i}" title="Remover">✕</button></div>`;
+            el.innerHTML=`<div class="campo"><label>Itens deste card (${blocos.length}) — passam para o lado · arraste ⠿ para reordenar</label><div id="blocosLinhas">`+blocos.map((b,i)=>{
+              const n=b.unidades.length, rot=(b.descricao||'').trim()||rotuloU(b.unidades[0]);
+              return `<div class="bloco-linha" data-i="${i}" style="${estiloLinha}"><button type="button" class="item-btn arrastar" data-barrastar title="Segure e arraste para reordenar">⠿</button>${prevHTML(b.unidades[0])}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rot)} · ${n} unidade${n!==1?'s':''}</span><button type="button" class="item-btn" data-bedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-bdel="${i}" title="Remover">✕</button></div>`;
             }).join('')+`</div></div>`;
           }
+          function renderUnidades(){
+            const el=$('listaUnidades');
+            if(!unidades.length){ el.innerHTML=''; return; }
+            el.innerHTML=`<div class="campo"><label>Neste item (${unidades.length}) — arraste ⠿ para reordenar</label><div id="unidadesLinhas">`+unidades.map((u,i)=>
+              `<div class="unid-linha" data-i="${i}" style="${estiloLinha}"><button type="button" class="item-btn arrastar" data-uarrastar title="Segure e arraste para reordenar">⠿</button>${prevHTML(u)}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem">${escapeHtml(rotuloU(u))}</span><button type="button" class="item-btn" data-uedit="${i}" title="Editar">✏️</button><button type="button" class="item-btn del" data-udel="${i}" title="Remover">✕</button></div>`
+            ).join('')+`</div></div>`;
+          }
           aoOrdenarBlocos=idx=>{ blocos=idx.map(i=>blocos[i]); renderLista(); };
+          aoOrdenarUnidades=idx=>{ unidades=idx.map(i=>unidades[i]); renderUnidades(); };
 
-          function marcarTipo(){
-            modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.toggle('ativo',b.dataset.tipo===tipoAtual));
+          function marcarTipo(){ modal.querySelectorAll('.seletor-tipo button').forEach(b=>b.classList.toggle('ativo',b.dataset.tipo===tipoAtual)); }
+
+          /* Vários arquivos de uma vez: cada um vira uma unidade do item atual */
+          function adicionarVarios(files,tipo){
+            const lista=[...files], expl=$('campoExplicacao').value.trim();
+            Promise.all(lista.map(f=>new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>res(null); r.readAsDataURL(f); }))).then(res=>{
+              const ok=res.filter(Boolean);
+              ok.forEach(src=>unidades.push({tipo,conteudo:src,explicacao:expl}));
+              renderUnidades();
+              mostrarToast(`${ok.length} ${tipo==='foto'?'foto(s)':'áudio(s)'} adicionado(s) ao item ✅`);
+            });
           }
 
-          function renderCorpo(tipo,bloco){
-            const div=document.getElementById('corpoDinamico');
-            const atual = bloco ? bloco.conteudo : null;
-            if(bloco){ document.getElementById('campoDescricao').value=bloco.descricao||''; document.getElementById('campoExplicacao').value=bloco.explicacao||''; }
+          function renderCorpo(tipo,unid){
+            const div=$('corpoDinamico');
+            const atual=unid?unid.conteudo:null;
+            if(unid) $('campoExplicacao').value=unid.explicacao||'';
             if(tipo==='texto'){
               div.innerHTML=`<div class="campo"><label>Sua anotação</label><textarea id="campoTexto" placeholder="Escreva aqui o conteúdo que você quer revisar...">${escapeHtml(atual||'')}</textarea></div>`;
             } else if(tipo==='link'){
               div.innerHTML=`<div class="campo"><label>URL</label><input type="url" id="campoLink" placeholder="https://..." value="${escapeHtml(atual||'')}"></div>`;
             } else if(tipo==='foto'){
-              div.innerHTML=`<div class="campo"><label>Foto</label><div style="display:flex;gap:8px;">
+              div.innerHTML=`<div class="campo"><label>Foto (na galeria você pode escolher várias de uma vez)</label><div style="display:flex;gap:8px;">
                 <button type="button" class="cbtn btn-secundario" id="btnCamera" style="flex:1;">📷 Tirar foto</button>
                 <button type="button" class="cbtn btn-secundario" id="btnGaleria" style="flex:1;">🖼️ Galeria</button></div>
-                <input type="file" id="campoFoto" accept="image/*" style="display:none">
+                <input type="file" id="campoFoto" accept="image/*" multiple style="display:none">
                 <img id="previewFoto" class="preview-mini" style="display:none"></div>`;
-              const inputFoto=document.getElementById('campoFoto');
-              const lerFoto=file=>{ if(!file) return; const r=new FileReader(); r.onload=()=>{ const img=document.getElementById('previewFoto'); img.src=r.result; img.style.display='block'; }; r.readAsDataURL(file); };
-              document.getElementById('btnCamera').onclick=()=>{ inputFoto.setAttribute('capture','environment'); inputFoto.click(); };
-              document.getElementById('btnGaleria').onclick=()=>{ inputFoto.removeAttribute('capture'); inputFoto.click(); };
-              inputFoto.onchange=e=>lerFoto(e.target.files[0]);
+              const inputFoto=$('campoFoto');
+              const lerFoto=file=>{ if(!file) return; const r=new FileReader(); r.onload=()=>{ const img=$('previewFoto'); img.src=r.result; img.style.display='block'; }; r.readAsDataURL(file); };
+              $('btnCamera').onclick=()=>{ inputFoto.setAttribute('capture','environment'); inputFoto.click(); };
+              $('btnGaleria').onclick=()=>{ inputFoto.removeAttribute('capture'); inputFoto.click(); };
+              inputFoto.onchange=e=>{
+                const fs=e.target.files; if(!fs.length) return;
+                if(fs.length>1){ adicionarVarios(fs,'foto'); e.target.value=''; } else lerFoto(fs[0]);
+              };
             } else if(tipo==='audio'){
-              div.innerHTML=`<div class="campo"><label>Áudio</label><div style="display:flex;gap:8px;">
+              div.innerHTML=`<div class="campo"><label>Áudio (ao enviar arquivos você pode escolher vários de uma vez)</label><div style="display:flex;gap:8px;">
                 <button type="button" class="cbtn btn-secundario" id="btnGravar" style="flex:1;">🎤 Gravar</button>
                 <button type="button" class="cbtn btn-secundario" id="btnEnviarAudio" style="flex:1;">📎 Enviar arquivo</button></div>
-                <input type="file" id="campoAudio" accept="audio/*" style="display:none">
+                <input type="file" id="campoAudio" accept="audio/*" multiple style="display:none">
                 <div class="grav-status" id="statusGravacao"><span class="grav-ponto"></span><span id="tempoGravacao">Gravando... 0s</span>
                   <button type="button" class="cbtn btn-primario" id="btnPararGravar" style="flex:none;padding:8px 16px;font-size:.8rem;">Parar</button></div>
                 <audio id="previewAudio" controls style="display:none;width:100%;margin-top:10px;"></audio></div>`;
-              document.getElementById('btnEnviarAudio').onclick=()=>document.getElementById('campoAudio').click();
-              document.getElementById('campoAudio').onchange=e=>{
-                const file=e.target.files[0]; if(!file) return;
-                const r=new FileReader(); r.onload=()=>{ const a=document.getElementById('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(file);
+              $('btnEnviarAudio').onclick=()=>$('campoAudio').click();
+              $('campoAudio').onchange=e=>{
+                const fs=e.target.files; if(!fs.length) return;
+                if(fs.length>1){ adicionarVarios(fs,'audio'); e.target.value=''; return; }
+                const r=new FileReader(); r.onload=()=>{ const a=$('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(fs[0]);
               };
               let rec=null, chunks=[], stream=null, cron=null, seg=0;
-              document.getElementById('btnGravar').onclick=async ()=>{
+              $('btnGravar').onclick=async ()=>{
                 if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){ mostrarToast('⚠️ Este navegador não permite gravar áudio aqui — envie um arquivo'); return; }
                 try{ stream=await navigator.mediaDevices.getUserMedia({audio:true}); }catch(err){ mostrarToast('⚠️ Permissão de microfone negada'); return; }
                 chunks=[]; rec=new MediaRecorder(stream);
                 rec.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
                 rec.onstop=()=>{
                   const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
-                  const r=new FileReader(); r.onload=()=>{ const a=document.getElementById('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(blob);
+                  const r=new FileReader(); r.onload=()=>{ const a=$('previewAudio'); a.src=r.result; a.style.display='block'; }; r.readAsDataURL(blob);
                   stream.getTracks().forEach(t=>t.stop());
                 };
                 rec.start(); seg=0;
-                document.getElementById('statusGravacao').classList.add('on');
-                document.getElementById('tempoGravacao').textContent='Gravando... 0s';
-                cron=setInterval(()=>{ seg++; document.getElementById('tempoGravacao').textContent=`Gravando... ${seg}s`; },1000);
+                $('statusGravacao').classList.add('on');
+                $('tempoGravacao').textContent='Gravando... 0s';
+                cron=setInterval(()=>{ seg++; $('tempoGravacao').textContent=`Gravando... ${seg}s`; },1000);
               };
-              document.getElementById('btnPararGravar').onclick=()=>{
+              $('btnPararGravar').onclick=()=>{
                 if(rec&&rec.state!=='inactive') rec.stop();
                 clearInterval(cron);
-                document.getElementById('statusGravacao').classList.remove('on');
+                $('statusGravacao').classList.remove('on');
               };
             }
-            const pv=document.getElementById(tipo==='foto'?'previewFoto':'previewAudio');
+            const pv=$(tipo==='foto'?'previewFoto':'previewAudio');
             if(atual&&pv){ pv.src=atual; pv.style.display='block'; }
           }
 
-          /* Lê o que está preenchido agora e devolve um bloco (ou null se estiver vazio) */
-          function coletarBloco(){
+          /* Lê a unidade que está preenchida agora (ou null se estiver vazia) */
+          function coletarUnidade(){
             let valor=null;
-            if(tipoAtual==='texto'){ valor=document.getElementById('campoTexto').value.trim(); if(!valor) return null; }
-            else if(tipoAtual==='link'){ valor=document.getElementById('campoLink').value.trim(); if(!valor) return null; if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
-            else if(tipoAtual==='foto'){ const img=document.getElementById('previewFoto'); if(img.style.display==='none') return null; valor=img.src; }
-            else if(tipoAtual==='audio'){ const a=document.getElementById('previewAudio'); if(a.style.display==='none') return null; valor=a.src; }
-            return {tipo:tipoAtual,conteudo:valor,descricao:document.getElementById('campoDescricao').value.trim(),explicacao:document.getElementById('campoExplicacao').value.trim()};
+            if(tipoAtual==='texto'){ valor=$('campoTexto').value.trim(); if(!valor) return null; }
+            else if(tipoAtual==='link'){ valor=$('campoLink').value.trim(); if(!valor) return null; if(!/^https?:\/\//i.test(valor)) valor='https://'+valor; }
+            else if(tipoAtual==='foto'){ const img=$('previewFoto'); if(img.style.display==='none') return null; valor=img.src; }
+            else if(tipoAtual==='audio'){ const a=$('previewAudio'); if(a.style.display==='none') return null; valor=a.src; }
+            return {tipo:tipoAtual,conteudo:valor,explicacao:$('campoExplicacao').value.trim()};
           }
 
-          renderLista();
-          renderCorpo(tipoAtual);
+          /* Fecha o conjunto atual e o guarda como um item do card (passa para o lado) */
+          function fecharConjunto(){
+            const pend=coletarUnidade(); if(pend) unidades.push(pend);
+            if(!unidades.length) return false;
+            blocos.push({descricao:$('campoDescricao').value.trim(),unidades});
+            unidades=[]; $('campoDescricao').value='';
+            return true;
+          }
+
+          renderLista(); renderUnidades(); renderCorpo(tipoAtual);
           modal.querySelectorAll('.seletor-tipo button').forEach(btn=>{
             btn.onclick=()=>{ tipoAtual=btn.dataset.tipo; marcarTipo(); renderCorpo(tipoAtual); };
           });
 
-          /* Editar / remover blocos já adicionados */
-          document.getElementById('listaBlocos').addEventListener('click',e=>{
+          /* Editar / remover itens do card */
+          $('listaBlocos').addEventListener('click',e=>{
             const bd=e.target.closest('[data-bdel]');
             if(bd){ blocos.splice(parseInt(bd.dataset.bdel,10),1); renderLista(); return; }
             const be=e.target.closest('[data-bedit]');
             if(be){
-              const b=blocos.splice(parseInt(be.dataset.bedit,10),1)[0];
-              tipoAtual=b.tipo; marcarTipo(); renderCorpo(tipoAtual,b); renderLista();
+              const idx=parseInt(be.dataset.bedit,10);
+              fecharConjunto();
+              const b=blocos.splice(idx,1)[0];
+              unidades=b.unidades; $('campoDescricao').value=b.descricao||'';
+              renderCorpo(tipoAtual); $('campoExplicacao').value='';
+              renderLista(); renderUnidades();
             }
           });
 
-          /* Adicionar mais um bloco (texto, foto, áudio ou link) ao mesmo item */
-          document.getElementById('btnAddBloco').onclick=()=>{
-            const b=coletarBloco();
-            if(!b){ mostrarToast(MSG_VAZIO[tipoAtual].replace('salvar','adicionar')); return; }
-            blocos.push(b);
-            document.getElementById('campoDescricao').value=''; document.getElementById('campoExplicacao').value='';
-            renderLista(); renderCorpo(tipoAtual);
-            mostrarToast('Adicionado ao item ✅ — pode adicionar mais');
+          /* Editar / remover unidades do item atual */
+          $('listaUnidades').addEventListener('click',e=>{
+            const ud=e.target.closest('[data-udel]');
+            if(ud){ unidades.splice(parseInt(ud.dataset.udel,10),1); renderUnidades(); return; }
+            const ue=e.target.closest('[data-uedit]');
+            if(ue){
+              const pend=coletarUnidade();
+              const u=unidades.splice(parseInt(ue.dataset.uedit,10),1)[0];
+              if(pend) unidades.push(pend);
+              tipoAtual=u.tipo; marcarTipo(); renderCorpo(tipoAtual,u); renderUnidades();
+            }
+          });
+
+          /* Mais uma unidade no MESMO item (fica embaixo) */
+          $('btnAddUnidade').onclick=()=>{
+            const u=coletarUnidade();
+            if(!u){ mostrarToast(MSG_VAZIO[tipoAtual].replace('salvar','adicionar')); return; }
+            unidades.push(u); $('campoExplicacao').value='';
+            renderUnidades(); renderCorpo(tipoAtual);
+            mostrarToast('Unidade adicionada ✅ — fica embaixo da anterior');
           };
 
-          document.getElementById('salvarItem').onclick=()=>{
-            const titulo=document.getElementById('campoTitulo').value.trim();
-            const pendente=coletarBloco();
-            if(pendente) blocos.push(pendente);
+          /* Concluir este item e começar outro (passa para o lado) */
+          $('btnNovoItem').onclick=()=>{
+            if(!fecharConjunto()){ mostrarToast('Adicione ao menos uma unidade antes'); return; }
+            $('campoExplicacao').value='';
+            renderLista(); renderUnidades(); renderCorpo(tipoAtual);
+            mostrarToast('Item concluído ✅ — o próximo vai para o lado');
+          };
+
+          $('salvarItem').onclick=()=>{
+            const titulo=$('campoTitulo').value.trim();
+            fecharConjunto();
             if(!blocos.length){ mostrarToast(MSG_VAZIO[tipoAtual]); return; }
             if(editando){
               itemEditar.titulo=titulo; itemEditar.blocos=blocos;
